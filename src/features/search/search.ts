@@ -6,6 +6,8 @@ import { errorMessage } from "@/lib/services";
 import { textMatches, toBlob } from "@/lib/vectors";
 import { embedImage, embedText } from "@/lib/vision";
 
+const PACKING_LOOK_MIN = 0.1;
+
 export type SearchHit = { item: ItemRow; how: "name" | "look"; score: number };
 
 export type SearchFilter = { roomId?: number | null; category?: string | null };
@@ -78,6 +80,25 @@ export async function searchItems(text: string, filter: SearchFilter = {}, limit
     lookError = errorMessage(error);
   }
   return { hits, lookError };
+}
+
+// For packing lists a wrong match is worse than a missing one, so only an
+// item whose name has every word, or a clear look match, counts.
+export async function bestMatch(need: string): Promise<ItemRow | null> {
+  const match = ftsQuery(need, " ");
+  if (match) {
+    const id = db
+      .prepare("select rowid from items_fts where items_fts match ? order by bm25(items_fts) limit 1")
+      .pluck()
+      .get(match) as number | undefined;
+    if (id) return itemsByIds([id])[0] ?? null;
+  }
+  try {
+    const [top] = textMatches(await embedText(need), itemsWithEmbeddings());
+    return top && top.score >= PACKING_LOOK_MIN ? top.row : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function matchPhoto(image: Buffer, limit = 5): Promise<SimilarItem[]> {
