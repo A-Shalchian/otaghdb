@@ -120,6 +120,8 @@ export async function createItem(_prev: ItemFormState, formData: FormData): Prom
 
   const params = new URLSearchParams({ saved: String(itemId) });
   if (placement.room_id) params.set("room", String(placement.room_id));
+  if (placement.spot_id) params.set("spot", String(placement.spot_id));
+  if (placement.container_id) params.set("container", String(placement.container_id));
   redirect(`/app/add?${params}`);
 }
 

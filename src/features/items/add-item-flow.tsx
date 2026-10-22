@@ -44,10 +44,12 @@ async function postJson<T>(url: string, body: unknown): Promise<T & { error?: st
 export function AddItemFlow({
   tree,
   defaultRoomId,
+  defaultSpotId,
   defaultContainerId,
 }: {
   tree: PlaceTree;
   defaultRoomId: number | null;
+  defaultSpotId: number | null;
   defaultContainerId: number | null;
 }) {
   const [state, formAction, saving] = useActionState(createItem, initialState);
@@ -255,7 +257,7 @@ export function AddItemFlow({
         />
         <PlacePicker
           tree={tree}
-          initial={{ roomId: defaultRoomId, spotId: null, containerId: defaultContainerId }}
+          initial={{ roomId: defaultRoomId, spotId: defaultSpotId, containerId: defaultContainerId }}
           category={ai.category}
           clothingType={ai.clothingType || null}
         />

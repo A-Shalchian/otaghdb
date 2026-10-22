@@ -16,6 +16,10 @@ export async function AddItemLoader({ searchParams }: { searchParams: SearchPara
   const defaultRoomId = tree.rooms.some((r) => r.id === requestedRoom) ? requestedRoom : (tree.rooms[0]?.id ?? null);
   const requestedContainer = firstId(params.container);
   const defaultContainerId = tree.containers.some((c) => c.id === requestedContainer) ? requestedContainer : null;
+  const requestedSpot = firstId(params.spot);
+  const spotRoom = tree.rooms.find((r) =>
+    [...r.looseSpots, ...r.furniture.flatMap((f) => f.spots)].some((s) => s.id === requestedSpot),
+  );
   const savedId = firstId(params.saved);
   const saved = savedId ? await getItem(savedId) : null;
 
@@ -32,7 +36,8 @@ export async function AddItemLoader({ searchParams }: { searchParams: SearchPara
       <AddItemFlow
         key={savedId ?? "new"}
         tree={tree}
-        defaultRoomId={defaultRoomId}
+        defaultRoomId={spotRoom?.id ?? defaultRoomId}
+        defaultSpotId={spotRoom ? requestedSpot : null}
         defaultContainerId={defaultContainerId}
       />
     </>
