@@ -1,10 +1,13 @@
-// SigLIP 2 base turns a cosine score into a match probability with its own
-// trained scale and bias: sigmoid(scale * cos + bias).
-const SIGLIP_SCALE = 112.67;
-const SIGLIP_BIAS = -16.77;
+// Tuned on SigLIP 2 base with real items: the right item scored cosine 0.084
+// to 0.158 against its description, wrong items at most 0.084, and wrong
+// items never came within 0.025 of the best match.
+export const TEXT_MATCH_FLOOR = 0.08;
+export const TEXT_MATCH_MARGIN = 0.025;
 
-export const TEXT_MATCH_MIN = 0.01;
+// Photo against photo: the same basket scored 0.903, other things in the
+// same room 0.72 to 0.74.
 export const SAME_ITEM_MIN = 0.85;
+export const SIMILAR_ITEM_MIN = 0.8;
 
 export function toBlob(vector: Float32Array) {
   return Buffer.from(vector.buffer, vector.byteOffset, vector.byteLength);
@@ -21,10 +24,6 @@ export function cosine(a: Float32Array, b: Float32Array) {
   return sum;
 }
 
-export function textMatchProbability(cos: number) {
-  return 1 / (1 + Math.exp(-(SIGLIP_SCALE * cos + SIGLIP_BIAS)));
-}
-
 export function rank<T extends { embedding: Buffer | null }>(query: Float32Array, rows: T[]) {
   const scored: { row: T; score: number }[] = [];
   for (const row of rows) {
@@ -32,4 +31,10 @@ export function rank<T extends { embedding: Buffer | null }>(query: Float32Array
     scored.push({ row, score: cosine(query, fromBlob(row.embedding)) });
   }
   return scored.sort((a, b) => b.score - a.score);
+}
+
+export function textMatches<T extends { embedding: Buffer | null }>(query: Float32Array, rows: T[]) {
+  const ranked = rank(query, rows);
+  const best = ranked[0]?.score ?? 0;
+  return ranked.filter(({ score }) => score >= TEXT_MATCH_FLOOR && score >= best - TEXT_MATCH_MARGIN);
 }
