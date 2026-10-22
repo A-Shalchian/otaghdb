@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { answer, brand, install, localPitch, models, steps } from "../content";
+import { pixelScrollbars } from "../scrollbars";
 import { PixelHouse } from "./pixel-parts";
 
 const bobCss =
@@ -35,8 +36,9 @@ function Pointer() {
 
 export default function PixelRoom() {
   return (
-    <div className="min-h-screen w-full overflow-x-clip bg-[#2B2950] pb-24 font-vt323 text-[#EEF0F2]">
+    <div className="pixel-root min-h-screen w-full overflow-x-clip bg-[#2B2950] pb-24 font-vt323 text-[#EEF0F2]">
       <style>{bobCss}</style>
+      <style>{pixelScrollbars}</style>
       <div className="mx-auto max-w-6xl px-4 sm:px-8">
         <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-8">
           <p className="font-silkscreen text-xl font-bold">{brand.name}</p>

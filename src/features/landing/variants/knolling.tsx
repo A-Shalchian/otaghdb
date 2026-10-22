@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { answer, brand, install, localPitch, models, sampleItems, stats, steps } from "../content";
 import { ObjectArt } from "../objects";
+import { knollingScrollbars } from "../scrollbars";
 
 const matStyle = {
   backgroundColor: "#D3D8DE",
@@ -97,9 +98,10 @@ function KnolledGrid() {
 export default function Knolling() {
   return (
     <div
-      className="min-h-screen w-full overflow-x-clip pb-24 font-archivo text-[#14202E]"
+      className="knolling-root min-h-screen w-full overflow-x-clip pb-24 font-archivo text-[#14202E]"
       style={matStyle}
     >
+      <style>{knollingScrollbars}</style>
       <Ruler />
       <div className="mx-auto max-w-6xl px-4 sm:px-8">
         <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-8">

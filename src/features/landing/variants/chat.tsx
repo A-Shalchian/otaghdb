@@ -1,27 +1,22 @@
 import Link from "next/link";
-import { answer, brand, install, localPitch, models, steps } from "../content";
+import { brand, install, localPitch, models, steps } from "../content";
+import { chatScrollbars } from "../scrollbars";
+import { AskLoop } from "./chat-ask";
 import {
   Asked,
-  FirstAnswer,
   MovePreview,
   PackingList,
   Replied,
+  SendIcon,
   chatCss,
   chatFocus,
 } from "./chat-parts";
 
-function SendIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true" className="size-5">
-      <path d="M10 16V4M5 9l5-5 5 5" fill="none" stroke="currentColor" strokeWidth="2.2" />
-    </svg>
-  );
-}
-
 export default function JustAsk() {
   return (
-    <div className="min-h-screen w-full bg-[#e8ecf1] pb-24 font-bricolage text-[#18212c]">
+    <div className="chat-root min-h-screen w-full bg-[#e8ecf1] pb-24 font-bricolage text-[#18212c]">
       <style>{chatCss}</style>
+      <style>{chatScrollbars}</style>
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-6">
           <span className="text-xl font-bold tracking-tight">{brand.name}</span>
@@ -56,24 +51,7 @@ export default function JustAsk() {
           </section>
 
           <section className="mt-16 sm:mt-24">
-            <div className="flex items-center gap-3 rounded-[28px] border border-[#c4ceda] bg-[#f6f8fa] py-2 pl-5 pr-2 sm:pl-7">
-              <h2 className="min-w-0 flex-1 py-2 text-[1.35rem] font-semibold leading-tight tracking-tight sm:text-[2.5rem]">
-                <span className="chat-type inline-block">
-                  {answer.question}
-                  <span
-                    aria-hidden="true"
-                    className="chat-caret ml-1 inline-block h-[0.9em] w-[3px] translate-y-[0.12em] bg-[#3d4f8f]"
-                  />
-                </span>
-              </h2>
-              <span
-                aria-hidden="true"
-                className="grid size-11 shrink-0 place-items-center rounded-full bg-[#3d4f8f] text-white sm:size-14"
-              >
-                <SendIcon />
-              </span>
-            </div>
-            <FirstAnswer />
+            <AskLoop />
           </section>
 
           <section className="mt-24 space-y-6">
@@ -136,7 +114,7 @@ export default function JustAsk() {
             <Asked text="how do I run it?" />
             <Replied>
               <p className="text-xl leading-snug">Run these in a terminal, in order.</p>
-              <div className="mt-4 overflow-x-auto rounded-[14px] bg-[#18212c] px-5 py-4 font-mono text-sm leading-7 text-[#e8ecf1]">
+              <div className="chat-code mt-4 overflow-x-auto rounded-[14px] bg-[#18212c] px-5 py-4 font-mono text-sm leading-7 text-[#e8ecf1]">
                 {install.map((command) => (
                   <code key={command} className="block whitespace-pre">
                     <span className="select-none text-[#8a96a6]">$ </span>

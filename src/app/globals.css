@@ -29,18 +29,11 @@
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-instrument: var(--font-instrument-src);
-  --font-fraunces: var(--font-fraunces-src);
   --font-plex: var(--font-plex-src);
   --font-silkscreen: var(--font-silkscreen-src);
   --font-vt323: var(--font-vt323-src);
-  --font-vazir: var(--font-vazir-src);
   --font-archivo: var(--font-archivo-src);
-  --font-fraktur: var(--font-fraktur-src);
-  --font-typewriter: var(--font-typewriter-src);
   --font-bricolage: var(--font-bricolage-src);
-  --font-caveat: var(--font-caveat-src);
-  --font-architect: var(--font-architect-src);
 }
 
 body {
