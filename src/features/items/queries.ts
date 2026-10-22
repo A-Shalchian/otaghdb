@@ -33,7 +33,7 @@ export type ItemRow = {
   created_at: string;
 };
 
-const ITEM_COLUMNS = `
+export const ITEM_COLUMNS = `
   i.id, i.name, i.category, i.clothing_type, i.color, i.description, i.is_container,
   i.would_discard, i.why_kept, i.notes, i.tags_json, i.original_file, i.cutout_file,
   i.sprite_file, i.grid_x, i.grid_y, i.created_at,
@@ -41,7 +41,7 @@ const ITEM_COLUMNS = `
   f.id as furniture_id, f.name as furniture_name, f.kind as furniture_kind,
   i.container_id, c.name as container_name`;
 
-const ITEM_FROM = `
+export const ITEM_FROM = `
   from items i
   left join rooms r on r.id = i.room_id
   left join spots s on s.id = i.spot_id

@@ -55,6 +55,12 @@ export function findSimilar(vector: Float32Array, limit = 3, excludeId?: number)
     }));
 }
 
+// The person can save before naming finishes, which deletes the staging
+// folder; the late results then have nowhere to go and are dropped.
+async function keep(token: string, file: string, data: Buffer | string) {
+  await writeStaged(token, file, data).catch(() => undefined);
+}
+
 export async function describeStaged(token: string): Promise<{
   guess: ItemGuess | null;
   error: string | null;
@@ -70,13 +76,13 @@ export async function describeStaged(token: string): Promise<{
 
   let duplicates: SimilarItem[] = [];
   if (embedded.status === "fulfilled") {
-    await writeStaged(token, "embedding.bin", toBlob(embedded.value));
+    await keep(token, "embedding.bin", toBlob(embedded.value));
     duplicates = findSimilar(embedded.value).filter((match) => match.score >= SAME_ITEM_MIN);
   }
 
   if (described.status === "rejected") {
     return { guess: null, error: errorMessage(described.reason), duplicates };
   }
-  await writeStaged(token, "ai.json", described.value.raw);
+  await keep(token, "ai.json", described.value.raw);
   return { guess: described.value.guess, error: null, duplicates };
 }
