@@ -17,26 +17,17 @@ import {
 import { placeItems, resolvePlacement } from "@/lib/places";
 import { toBlob } from "@/lib/vectors";
 import { embedImage } from "@/lib/vision";
+import { optionalEnum, optionalText, PlaceFields } from "./form-schema";
 
 export type ItemFormState = { error: string | null; saved?: boolean };
 
-const blankToUndefined = (value: unknown) => (value === "" || value === null ? undefined : value);
-
-const optionalText = (max: number) => z.preprocess(blankToUndefined, z.string().trim().max(max).optional());
-
-const optionalId = z.preprocess(blankToUndefined, z.coerce.number().int().positive().optional());
-
-const ItemFields = z.object({
+const ItemFields = PlaceFields.extend({
   name: z.string().trim().min(1, "Give it a name.").max(80, "Keep the name under 80 characters."),
   category: z.enum(CATEGORIES),
-  clothingType: z.preprocess(blankToUndefined, z.enum(CLOTHING_TYPES).optional()),
+  clothingType: optionalEnum(CLOTHING_TYPES),
   color: optionalText(40),
   tags: optionalText(400),
   description: optionalText(300),
-  roomId: optionalId,
-  spotId: optionalId,
-  newSpot: optionalText(60),
-  containerId: optionalId,
   isContainer: z.preprocess((value) => value === "on", z.boolean()),
   wouldDiscard: z.enum(DISCARD_LEVELS),
   whyKept: optionalText(280),
