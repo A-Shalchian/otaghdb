@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f4f2ec;
+  --card: #fbfaf6;
+  --ink: #1c1b18;
+  --soft: #6f6b62;
+  --line: #dcd8ce;
+  --accent: #2f6b4f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #131311;
+    --card: #1b1a17;
+    --ink: #ebe9e3;
+    --soft: #9a958b;
+    --line: #2d2c28;
+    --accent: #74c49a;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-instrument: var(--font-instrument-src);
+  --font-fraunces: var(--font-fraunces-src);
+  --font-plex: var(--font-plex-src);
+  --font-silkscreen: var(--font-silkscreen-src);
+  --font-vt323: var(--font-vt323-src);
+  --font-vazir: var(--font-vazir-src);
+  --font-archivo: var(--font-archivo-src);
+  --font-fraktur: var(--font-fraktur-src);
+  --font-typewriter: var(--font-typewriter-src);
+  --font-bricolage: var(--font-bricolage-src);
+  --font-caveat: var(--font-caveat-src);
+  --font-architect: var(--font-architect-src);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
