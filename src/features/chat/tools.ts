@@ -183,9 +183,13 @@ const Update = z.object({
   remove_tags: z.array(z.string()).optional(),
   would_discard: z.enum(DISCARD_LEVELS).optional(),
 });
-const NewSpot = z.object({ room: z.string(), name: z.string().min(1), furniture_id: z.coerce.number().int().optional() });
+const NewSpot = z.object({
+  room: z.string(),
+  name: z.string().trim().min(1),
+  furniture_id: z.coerce.number().int().optional(),
+});
 const Packing = z.object({
-  title: z.string().min(1),
+  title: z.string().trim().min(1),
   needs: z.array(z.string()).min(1).max(30),
 });
 
@@ -224,20 +228,24 @@ const RUNNERS: Record<string, (args: unknown) => Promise<ToolResult>> = {
 
   async list_places() {
     const tree = getPlaceTree();
-    const lines: string[] = [];
+    const containers = tree.containers
+      .slice(0, 30)
+      .map((c) => `${c.name} [container ${c.id}]${c.room_name ? ` in ${c.room_name}` : ""}`);
+    const lines = [`containers: ${containers.join(", ") || "none"}`];
+    // Each room gets its own share of the budget so a big room cannot push
+    // the others, and their spot ids, out of the result.
+    const perRoom = Math.floor(2000 / Math.max(1, tree.rooms.length));
     for (const room of tree.rooms) {
-      lines.push(`${room.name} (room)`);
+      const roomLines = [`${room.name} (room)`];
       for (const f of room.furniture) {
-        lines.push(`  ${f.name}: ${f.spots.map((s) => `${s.name} [spot ${s.id}]`).join(", ")}`);
+        roomLines.push(`  ${f.name}: ${f.spots.map((s) => `${s.name} [spot ${s.id}]`).join(", ")}`);
       }
       if (room.looseSpots.length) {
-        lines.push(`  other spots: ${room.looseSpots.map((s) => `${s.name} [spot ${s.id}]`).join(", ")}`);
+        roomLines.push(`  other spots: ${room.looseSpots.map((s) => `${s.name} [spot ${s.id}]`).join(", ")}`);
       }
+      lines.push(roomLines.join("\n").slice(0, perRoom));
     }
-    lines.push(
-      `containers: ${tree.containers.map((c) => `${c.name} [container ${c.id}]${c.room_name ? ` in ${c.room_name}` : ""}`).join(", ") || "none"}`,
-    );
-    return { text: lines.join("\n").slice(0, 2400), status: "Listed your rooms and furniture" };
+    return { text: lines.join("\n"), status: "Listed your rooms and furniture" };
   },
 
   async items_in(args) {
@@ -285,8 +293,8 @@ const RUNNERS: Record<string, (args: unknown) => Promise<ToolResult>> = {
     if (items.length === 0) return { text: "None of those item ids exist. Search first.", status: "Tried to update items" };
     const changes = {
       category: input.category ?? null,
-      addTags: (input.add_tags ?? []).map((t) => t.trim()).filter(Boolean).slice(0, 10),
-      removeTags: (input.remove_tags ?? []).map((t) => t.trim()).filter(Boolean).slice(0, 10),
+      addTags: (input.add_tags ?? []).map((t) => t.trim().slice(0, 30)).filter(Boolean).slice(0, 10),
+      removeTags: (input.remove_tags ?? []).map((t) => t.trim().slice(0, 30)).filter(Boolean).slice(0, 10),
       wouldDiscard: input.would_discard ?? null,
     };
     const what = [
@@ -320,7 +328,7 @@ const RUNNERS: Record<string, (args: unknown) => Promise<ToolResult>> = {
 
   async plan_packing_list(args) {
     const input = Packing.parse(args);
-    const needs = [...new Set(input.needs.map((n) => n.trim().toLowerCase()).filter(Boolean))];
+    const needs = [...new Set(input.needs.map((n) => n.trim().toLowerCase().slice(0, 60)).filter(Boolean))];
     const owned = new Map<number, ItemRow>();
     const found: string[] = [];
     const missing: string[] = [];

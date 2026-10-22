@@ -57,6 +57,10 @@ export async function writeStaged(token: string, file: string, data: Buffer | st
   await writeFile(stagedPath(token, file), data);
 }
 
+export async function removeStaged(token: string, file: string) {
+  await rm(stagedPath(token, file), { force: true });
+}
+
 export async function removeStaging(token: string) {
   if (!isStagingToken(token)) return;
   await rm(path.join(STAGING_DIR, token), { recursive: true, force: true });

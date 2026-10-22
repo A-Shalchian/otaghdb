@@ -108,10 +108,12 @@ export function ChatView() {
     setInput("");
     setBusy(true);
 
-    const history: ChatTurn[] = [
+    // The agent only reads the last few turns, and the route caps the request size.
+    const turns: ChatTurn[] = [
       ...bubbles.filter((b) => !b.pending && b.text).map((b) => ({ role: b.role, content: b.text })),
       { role: "user", content: question },
     ];
+    const history = turns.slice(-6);
     const userId = nextId.current++;
     const replyId = nextId.current++;
     const empty = { statuses: [], items: [], proposals: [] };
@@ -137,7 +139,7 @@ export function ChatView() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: history }),
       });
-      if (!res.body) throw new Error("no stream");
+      if (!res.ok || !res.body) throw new Error("no stream");
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";

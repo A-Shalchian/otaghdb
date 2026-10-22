@@ -16,13 +16,15 @@ export async function POST(request: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const emit = (event: ChatEvent) => controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+      const emit = (event: ChatEvent) => {
+        if (!request.signal.aborted) controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+      };
       try {
-        await runAgent(parsed.data.messages, emit);
+        await runAgent(parsed.data.messages, emit, request.signal);
       } catch (error) {
         emit({ type: "error", text: errorMessage(error) });
       }
-      controller.close();
+      if (!request.signal.aborted) controller.close();
     },
   });
   return new Response(stream, {

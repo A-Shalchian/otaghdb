@@ -51,8 +51,11 @@ export async function backfillEmbeddings(max = 12) {
   for (const id of missing) {
     const image = (await readItemImage(id, "cutout.png")) ?? (await readItemImage(id, "original.jpg"));
     if (!image) continue;
-    const vector = await embedImage(image);
-    db.prepare("update items set embedding = ? where id = ?").run(toBlob(vector), id);
+    try {
+      db.prepare("update items set embedding = ? where id = ?").run(toBlob(await embedImage(image)), id);
+    } catch {
+      // One unreadable photo should not block the rest or the search itself.
+    }
   }
 }
 
@@ -69,7 +72,7 @@ export async function searchItems(text: string, filter: SearchFilter = {}, limit
 
   let lookError: string | null = null;
   try {
-    const [vector] = await Promise.all([embedText(text), backfillEmbeddings()]);
+    const [vector] = await Promise.all([embedText(text), backfillEmbeddings().catch(() => undefined)]);
     for (const { row, score } of textMatches(vector, itemsWithEmbeddings())) {
       if (hits.length >= limit) break;
       if (seen.has(row.id) || !passes(row, filter)) continue;

@@ -4,7 +4,15 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { CATEGORIES, CLOTHING_TYPES } from "@/lib/categories";
 import { db } from "@/lib/db";
-import { cropBox, isStagingToken, makeSprite, readStaged, removeStaging, saveItemImages } from "@/lib/images";
+import {
+  cropBox,
+  isStagingToken,
+  makeSprite,
+  readStaged,
+  removeItemImages,
+  removeStaging,
+  saveItemImages,
+} from "@/lib/images";
 import { resolvePlacement } from "@/lib/places";
 import { toBlob } from "@/lib/vectors";
 import { embedImage } from "@/lib/vision";
@@ -93,15 +101,21 @@ export async function saveScene(_prev: SceneSaveState, formData: FormData): Prom
     ),
   )();
 
-  await Promise.all(
-    prepared.map(({ original, cutout, sprite, object }, index) =>
-      saveItemImages(ids[index], {
-        "original.jpg": original,
-        "cutout.png": object.cutout ? cutout : undefined,
-        "sprite.png": sprite,
-      }),
-    ),
-  );
+  try {
+    await Promise.all(
+      prepared.map(({ original, cutout, sprite, object }, index) =>
+        saveItemImages(ids[index], {
+          "original.jpg": original,
+          "cutout.png": object.cutout ? cutout : undefined,
+          "sprite.png": sprite,
+        }),
+      ),
+    );
+  } catch {
+    db.prepare("delete from items where id in (select value from json_each(?))").run(JSON.stringify(ids));
+    await Promise.all(ids.map(removeItemImages));
+    return { error: "Could not save the photos. Nothing was added; try again." };
+  }
   await removeStaging(token);
   redirect(placement.room_id ? `/app?room=${placement.room_id}` : "/app");
 }

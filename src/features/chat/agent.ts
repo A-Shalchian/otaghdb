@@ -67,11 +67,12 @@ function finish(content: string, emit: (event: ChatEvent) => void) {
   emit({ type: "answer", text, items });
 }
 
-export async function runAgent(history: ChatTurn[], emit: (event: ChatEvent) => void) {
+export async function runAgent(history: ChatTurn[], emit: (event: ChatEvent) => void, signal?: AbortSignal) {
   const messages: ChatMessage[] = [{ role: "system", content: SYSTEM }, ...trimHistory(history)];
   emit({ type: "status", text: "Thinking" });
 
   for (let round = 0; round < MAX_ROUNDS; round++) {
+    if (signal?.aborted) return;
     fitToBudget(messages);
     const reply = await chat({ messages, tools: TOOL_DEFINITIONS });
     const calls = reply.tool_calls ?? [];
@@ -86,6 +87,7 @@ export async function runAgent(history: ChatTurn[], emit: (event: ChatEvent) => 
     }
   }
 
+  if (signal?.aborted) return;
   fitToBudget(messages);
   const reply = await chat({
     messages: [...messages, { role: "user", content: "Answer now with what you found. Do not call tools." }],

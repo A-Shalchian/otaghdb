@@ -163,12 +163,15 @@ export function placeItems(ids: number[], placement: Placement) {
     }
   }
 
+  // A pixel-room tile only means something inside its own room.
+  const tile = `grid_x = case when room_id is @room_id then grid_x end,
+                grid_y = case when room_id is @room_id then grid_y end`;
   const update = db.prepare(
-    `update items set room_id = @room_id, spot_id = @spot_id, container_id = @container_id,
+    `update items set ${tile}, room_id = @room_id, spot_id = @spot_id, container_id = @container_id,
        updated_at = datetime('now') where id = @id`,
   );
   const follow = db.prepare(
-    "update items set room_id = @room_id, spot_id = @spot_id, updated_at = datetime('now') where id = @id",
+    `update items set ${tile}, room_id = @room_id, spot_id = @spot_id, updated_at = datetime('now') where id = @id`,
   );
 
   db.transaction(() => {

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { describeItem, type ItemGuess } from "@/lib/ollama";
-import { imageUrl, onWhite, readStaged, SINGLE_MAX_SIDE, stagePhoto, writeStaged } from "@/lib/images";
+import { imageUrl, onWhite, readStaged, removeStaged, SINGLE_MAX_SIDE, stagePhoto, writeStaged } from "@/lib/images";
 import { locationText } from "@/lib/places";
 import { errorMessage } from "@/lib/services";
 import { rank, SAME_ITEM_MIN, toBlob } from "@/lib/vectors";
@@ -31,6 +31,7 @@ export async function recutAtPoint(token: string, x: number, y: number) {
   const [object] = await segment(original, { points: [[x, y]] });
   if (!object) throw new Error("Nothing found at that spot. Tap closer to the middle of the thing.");
   await writeStaged(token, "cutout.png", object.png);
+  await Promise.all([removeStaged(token, "embedding.bin"), removeStaged(token, "ai.json")]);
 }
 
 export async function stagedSubject(token: string) {

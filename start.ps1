@@ -5,6 +5,14 @@ Set-Location $PSScriptRoot
 
 $model = if ($env:OTAGHDB_MODEL) { $env:OTAGHDB_MODEL } else { "qwen3.5:9b" }
 
+function Wait-Up([string]$url, [string]$what, [int]$seconds, [string]$hint) {
+  $deadline = (Get-Date).AddSeconds($seconds)
+  while (-not (Test-Up $url)) {
+    if ((Get-Date) -gt $deadline) { throw "$what did not start within $seconds seconds. $hint" }
+    Start-Sleep -Seconds 2
+  }
+}
+
 function Test-Up([string]$url) {
   try {
     Invoke-RestMethod $url -TimeoutSec 3 | Out-Null
@@ -17,13 +25,13 @@ function Test-Up([string]$url) {
 if (-not (Test-Up "http://127.0.0.1:11434/api/version")) {
   Write-Host "Starting Ollama..."
   Start-Process "ollama" -ArgumentList "serve" -WindowStyle Hidden
-  while (-not (Test-Up "http://127.0.0.1:11434/api/version")) { Start-Sleep -Seconds 1 }
+  Wait-Up "http://127.0.0.1:11434/api/version" "Ollama" 60 "Open the Ollama app and run this again."
 }
 
 if (-not (Test-Up "http://127.0.0.1:7000/health")) {
   Write-Host "Starting the vision service in its own window. The first start downloads the models."
   Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "services/vision/start.ps1"
-  while (-not (Test-Up "http://127.0.0.1:7000/health")) { Start-Sleep -Seconds 2 }
+  Wait-Up "http://127.0.0.1:7000/health" "The vision service" 600 "Check its window for the error."
 }
 
 # Loading with the same num_ctx the app sends keeps Ollama from reloading
