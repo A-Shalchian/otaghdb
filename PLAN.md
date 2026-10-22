@@ -214,10 +214,16 @@ Names come from the detection call itself, so a photo of 12 objects is one Qwen 
 
 1. You type "something red and round" in the search box.
 2. The server runs a keyword search and asks the vision service for the text's SigLIP vector.
-3. It compares that vector against every item's image vector and keeps the closest matches above a threshold.
+3. It compares that vector against every item's image vector. A match needs a cosine of at least 0.08 and must be within 0.025 of the best match.
 4. Results merge, with keyword matches first.
 
-"Do I already own this?" works the same way with a photo instead of text: cutout, image vector, closest items with a score. The match threshold is tuned on our real items before the demo.
+The thresholds come from real items. The right item scored cosine 0.084 to 0.158 against its description, wrong items scored at most 0.084, and no wrong item came within 0.025 of the best match. A fixed cutoff alone could not separate them.
+
+Keyword search drops stopwords ("a", "and", "for", "something") first. Before that, "a light for reading" matched the TV remote through the word "for".
+
+"Do I already own this?" works the same way with a photo instead of text: cutout, image vector, closest items with a score. Above 0.85 is very likely the same thing and 0.80 to 0.85 is "maybe". The same basket in two photos scored 0.903, while other things in the same room scored 0.72 to 0.74.
+
+Items saved while the vision service was off have no vector. Each search fills in up to 12 of them.
 
 ### Ask and act
 
@@ -227,30 +233,34 @@ Tools that only read run straight away:
 
 | Tool | Does |
 |---|---|
-| `search_items(text, room?, category?)` | keyword search plus SigLIP text search |
-| `get_item(id)` | one item with its full location chain |
-| `list_places()` | every room, spot and container |
+| `search_items(queries)` | keyword search plus SigLIP text search, several short searches in one call |
+| `get_item(id)` | one item with its full location chain and what it holds |
+| `list_places()` | every room, piece of furniture, compartment, loose spot and container, with ids |
 | `items_in(container_id or spot_id)` | what is inside something |
 
 Tools that change data only propose:
 
 | Tool | Proposes |
 |---|---|
-| `move_items(ids, room?, spot?, container_id?)` | moving items |
-| `update_items(ids, category?, add_tags?, remove_tags?, would_discard?)` | bulk edits |
-| `create_spot(room, name)` | a new spot |
-| `create_packing_list(title, item_ids, missing)` | a packing list |
+| `move_items(item_ids, container_id or spot_id or room)` | moving items |
+| `update_items(item_ids, category?, add_tags?, remove_tags?, would_discard?)` | bulk edits |
+| `create_spot(room, name, furniture_id?)` | a new spot, or a new compartment in a piece of furniture |
+| `plan_packing_list(title, needs)` | a packing list |
 
-A proposal does not touch the database. The chat shows it as a card ("Move 7 items to closet shelf", with the item list) and an Apply button. The model can misread a request, and a bulk change you did not want is worse than one extra click.
+A proposal does not touch the database. The chat shows it as a card ("Move 7 items to closet shelf", with the item list) and an Apply button. The model can misread a request, and a bulk change you did not want is worse than one extra click. Apply sends the proposal to a server action that validates it again before changing anything.
 
-Answers come back as `{ "answer": "...", "item_ids": [42, 17] }`. Ids that do not exist are dropped, so the model cannot point at a made-up item. The location chain (item, container, spot, room) comes from the database. Qwen only phrases the answer.
+The answer is plain text where every item is marked as `[[id]]` right after its name. The server collects the ids, drops any that do not exist, removes the markers and shows a card per item. A JSON `format` cannot be used here, because constraining the output to JSON stops Qwen from emitting tool calls. The location chain (item, container, furniture and compartment, room) comes from the database. Qwen only phrases the answer.
+
+The context is 4096 tokens and the tool definitions take about 1,000 of them. History is cut to the last 6 messages, and older tool results are shortened once the messages pass about 8,000 characters.
 
 ### Packing lists
 
 1. You type "I'm going camping for 3 days".
-2. Qwen searches for what it needs (tent, flashlight, layers, chargers) using the read tools.
-3. It calls `create_packing_list` with the items you own and a `missing` list for things you do not own ("sleeping bag").
-4. After you apply it, the list page shows a checklist grouped by room and spot, so you collect everything in one walk through the house. Ticks are saved.
+2. Qwen calls `plan_packing_list` with a title and the 10 to 20 things the trip needs (tent, flashlight, layers, chargers).
+3. The server matches each need. An item counts only if every word of the need appears in its name, tags or notes, or if it clearly looks like the need to SigLIP (cosine 0.10 or more). Everything else goes on the missing list ("sleeping bag").
+4. After you apply it, the list page shows a checklist grouped by room, then furniture and compartment, so you collect everything in one walk through the house. Ticks are saved.
+
+The first version gave Qwen a `create_packing_list(title, item_ids, missing)` tool and expected it to search first. The 9B model searched, then looked up every result one by one, ran out of rounds, and asked "would you like me to create a packing list?" instead of making one. Matching on the server takes one tool call and about 5 seconds.
 
 ### Pixel sprites and the pixel room
 
@@ -323,7 +333,7 @@ furniture     id, room_id -> rooms, kind, name,         ("closet", "desk")
               sort_order
 spots         id, room_id -> rooms,
               furniture_id -> furniture,                (null for a loose spot like "floor by the door")
-              name, holds_json, sort_order              ("hanging rod", "top drawer")
+              name, style, holds_json, sort_order       ("hanging rod", "top drawer")
 items         id, name, category, clothing_type,        (clothing_type only for clothing)
               color, description,
               room_id -> rooms, spot_id -> spots,
@@ -344,6 +354,9 @@ list_items    list_id -> lists, item_id -> items, checked
 - `ai_json` keeps the model's raw reply, so you can compare what the AI guessed with what you saved.
 - Containers can nest (pouch in backpack in suitcase). An item cannot contain itself.
 - A compartment is a spot with a `furniture_id`. An item's furniture comes through its spot, so moving a desk to another room moves every drawer and everything in it.
+- A spot's `style` (rod, shelf, drawer, floor, hooks, surface) comes from the furniture template and decides how the closet view draws it.
+- Items inside a container always share the container's room and spot. Moving a container moves everything in it, nested containers included.
+- `src/lib/db.ts` applies `db/schema.sql` to new databases and runs numbered migrations on older ones, tracked with SQLite's `user_version`.
 
 ## Memory budget
 
@@ -375,36 +388,40 @@ First test on one photo: the 9B names an item in 4.5 seconds and found both remo
 ```
 otaghdb/
   PLAN.md                 this file
-  README.md               for judges, written last
+  DEMO.md                 the live demo script and what happens underneath
+  README.md               for judges
   LICENSE                 MIT
+  start.ps1               starts Ollama, the vision service and the app
   db/
-    schema.sql            tables and the full-text index
+    schema.sql            tables, the full-text index and its triggers
   services/
     vision/
       main.py             FastAPI app: cutout, segment, embed
       requirements.txt
       start.ps1           starts the service on port 7000
   src/
-    app/                  pages and route handlers
+    app/                  pages and route handlers (/app/..., /api/..., /images, /staging)
+    components/           shared form pieces, photo button, confirm button
     features/
-      items/              add one, add many, browse, edit
+      items/              add one, add many, browse, edit, the place picker
       search/             keyword and look search, "do I own this"
-      chat/               ask and act, tool definitions, proposals
+      chat/               ask and act: agent loop, tools, proposals
       lists/              packing lists
       room/               pixel room
       landing/            landing designs, switcher, shared copy and object drawings
-      furniture/          furniture, compartments, templates
+      furniture/          room page, furniture page, compartments
       closet/             clothes-only closet view
     lib/
-      db.ts               SQLite connection and queries
+      db.ts               SQLite connection and migrations
       ollama.ts           calls to Qwen and the JSON schemas
       vision.ts           calls to the vision service
-      vectors.ts          vector similarity
-      images.ts           resize, save, sprites
-      furniture.ts        furniture templates
+      vectors.ts          vector similarity and search thresholds
+      images.ts           staging, resize, crops, sprites
+      places.ts           room, furniture, compartment and container tree, moves
+      furniture.ts        furniture templates and compartment suggestions
   skills/
     otaghdb/SKILL.md       stretch: agent skill
-  data/                   not in git: otaghdb.sqlite, images/, scenes/
+  data/                   not in git: otaghdb.sqlite, images/, staging/, backups/
 ```
 
 ## Setup steps
@@ -461,15 +478,15 @@ Steps 1 to 5 were done on 2026-10-22 with Ollama 0.40.8, torch 2.14.1 (CPU) and 
 | Step | Done when | When |
 |---|---|---|
 | 0. Setup | Qwen names a test photo, the vision service cuts one out. Done 2026-10-22. | Wednesday night |
-| 1. Skeleton | Add an item by hand with a photo, see it in a grid by room | Wednesday night |
-| 2. Add one item with AI | Cutout, tap-to-cut, AI fields, saved | Thursday |
-| 3. Add many items | Drawer photo becomes reviewed, saved items | Thursday |
-| 3b. Furniture and closet | Add a desk and a closet from templates, file items into drawers and shelves, swipe through the closet view | After step 3 |
-| 4. Search by look | Text search by look, "do I own this", duplicate warning | Thursday |
-| 5. Ask and act | Questions answered, move and edit proposals applied | Thursday or Friday morning |
-| 6. Packing lists | "Camping for 3 days" gives a grouped checklist | Friday morning |
-| 7. Pixel room | Sprites on a grid per room, drag to move. First to cut if behind | Friday |
-| 8. Demo prep | 30 real items in, README, repo public, backup video | Friday by 6 PM |
+| 1. Skeleton | Add an item by hand with a photo, see it in a grid by room. Done 2026-10-21. | Wednesday night |
+| 2. Add one item with AI | Cutout, tap-to-cut, AI fields, saved. Done 2026-10-22. | Thursday |
+| 3. Add many items | Drawer photo becomes reviewed, saved items. Done 2026-10-22. | Thursday |
+| 3b. Furniture and closet | Add a desk and a closet from templates, file items into drawers and shelves, swipe through the closet view. Done 2026-10-22. | After step 3 |
+| 4. Search by look | Text search by look, "do I own this", duplicate warning. Done 2026-10-22. | Thursday |
+| 5. Ask and act | Questions answered, move and edit proposals applied. Done 2026-10-22. | Thursday or Friday morning |
+| 6. Packing lists | "Camping for 3 days" gives a grouped checklist. Done 2026-10-22. | Friday morning |
+| 7. Pixel room | Sprites on a grid per room, drag to move. Done 2026-10-22. | Friday |
+| 8. Demo prep | DEMO.md, README and `start.ps1` done 2026-10-22. Still to do: 30 real items in, repo public, backup video. | Friday by 6 PM |
 
 Stretch goals, in order:
 
@@ -477,6 +494,8 @@ Stretch goals, in order:
 2. **Steel resale price lookup.**
 
 ## Demo script
+
+[DEMO.md](DEMO.md) has the full version: the checklist before the demo, what happens underneath each step, measured timings and fallbacks.
 
 1. Photograph a messy desk drawer on the phone. Eight items appear, each cut out and named. Untick one, tap a missed pen, save.
 2. Ask "where is my passport?". Answer: "in the black backpack, on the closet shelf, in the bedroom", with both cards.
