@@ -39,6 +39,7 @@ export async function AddItemLoader({ searchParams }: { searchParams: SearchPara
         defaultRoomId={spotRoom?.id ?? defaultRoomId}
         defaultSpotId={spotRoom ? requestedSpot : null}
         defaultContainerId={defaultContainerId}
+        resumeCamera={Boolean(saved)}
       />
     </>
   );

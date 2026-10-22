@@ -6,6 +6,7 @@ const NAV = [
   { href: "/app/ask", label: "Ask" },
   { href: "/app/check", label: "Do I own this?" },
   { href: "/app/lists", label: "Lists" },
+  { href: "/app/phone", label: "Phone" },
 ];
 
 export default function AppLayout({ children }: LayoutProps<"/app">) {

@@ -7,6 +7,7 @@ import type { PlaceTree } from "@/lib/places";
 import { createItem, type ItemFormState } from "./actions";
 import type { SimilarItem } from "./analysis";
 import { AiFieldInputs, emptyAiFields, KeptFieldInputs, type AiFields } from "./item-fields";
+import { CameraButton } from "@/components/camera";
 import { PhotoButton } from "@/components/photo-button";
 import { PlacePicker } from "./place-picker";
 
@@ -32,6 +33,27 @@ const PHASE_TEXT: Record<Phase, string | null> = {
 
 const initialState: ItemFormState = { error: null };
 
+const KEEP_SHOOTING = "otaghdb.keepShooting";
+
+// After a save the page comes back with the camera already open, so adding
+// a pile of things while unpacking is shoot, check, save, repeat.
+function readKeepShooting() {
+  try {
+    return typeof window !== "undefined" && window.sessionStorage.getItem(KEEP_SHOOTING) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeKeepShooting(on: boolean) {
+  try {
+    if (on) window.sessionStorage.setItem(KEEP_SHOOTING, "1");
+    else window.sessionStorage.removeItem(KEEP_SHOOTING);
+  } catch {
+    // Private browsing can block storage; the camera just stays closed.
+  }
+}
+
 async function postJson<T>(url: string, body: unknown): Promise<T & { error?: string }> {
   const res = await fetch(url, {
     method: "POST",
@@ -46,11 +68,13 @@ export function AddItemFlow({
   defaultRoomId,
   defaultSpotId,
   defaultContainerId,
+  resumeCamera,
 }: {
   tree: PlaceTree;
   defaultRoomId: number | null;
   defaultSpotId: number | null;
   defaultContainerId: number | null;
+  resumeCamera: boolean;
 }) {
   const [state, formAction, saving] = useActionState(createItem, initialState);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -64,6 +88,7 @@ export function AddItemFlow({
   const [ai, setAi] = useState<AiFields>(emptyAiFields);
   const dirty = useRef(new Set<keyof AiFields>());
   const photoRef = useRef<HTMLImageElement>(null);
+  const [cameraOpen, setCameraOpen] = useState(() => resumeCamera && readKeepShooting());
 
   useEffect(() => {
     return () => {
@@ -196,12 +221,23 @@ export function AddItemFlow({
         ) : (
           <div className="flex aspect-square flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-line bg-card px-6 text-center">
             <p className="text-sm font-medium">Photograph one thing</p>
-            <p className="font-mono text-[11px] text-soft">The background is removed and the AI names it.</p>
+            <p className="font-mono text-[11px] text-soft">Tap Camera. The background is removed and the AI names it.</p>
           </div>
         )}
 
         <div className="flex flex-wrap gap-2">
-          <PhotoButton label="Take photo" capture onPick={onPhoto} disabled={busy} />
+          <CameraButton
+            title="Photograph one thing"
+            label={photoSrc ? "Camera again" : "Camera"}
+            open={cameraOpen}
+            disabled={busy}
+            onOpenChange={(open, reason) => {
+              setCameraOpen(open);
+              if (reason === "capture") writeKeepShooting(true);
+              if (reason === "close") writeKeepShooting(false);
+            }}
+            onPick={onPhoto}
+          />
           <PhotoButton label={photoSrc ? "Choose another" : "Choose photo"} onPick={onPhoto} disabled={busy} />
           {cutoutSrc ? (
             <button

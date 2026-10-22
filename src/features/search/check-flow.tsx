@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { CameraButton } from "@/components/camera";
 import { PhotoButton } from "@/components/photo-button";
 import type { SimilarItem } from "@/features/items/analysis";
 import { SAME_ITEM_MIN, SIMILAR_ITEM_MIN } from "@/lib/vectors";
@@ -17,6 +18,7 @@ function verdict(top: SimilarItem | undefined) {
 
 export function CheckFlow() {
   const [busy, setBusy] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
 
@@ -44,7 +46,13 @@ export function CheckFlow() {
           )}
         </div>
         <div className="flex gap-2">
-          <PhotoButton label="Take photo" capture onPick={onPhoto} disabled={busy} />
+          <CameraButton
+            title="Point at the thing"
+            open={cameraOpen}
+            disabled={busy}
+            onOpenChange={(open) => setCameraOpen(open)}
+            onPick={onPhoto}
+          />
           <PhotoButton label="Choose photo" onPick={onPhoto} disabled={busy} />
         </div>
       </div>

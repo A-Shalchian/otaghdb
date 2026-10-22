@@ -4,6 +4,7 @@ import { startTransition, useActionState, useRef, useState } from "react";
 import { ErrorText, fieldClass, monoLabel, primaryButton } from "@/components/form";
 import { CATEGORIES, CLOTHING_TYPES } from "@/lib/categories";
 import type { PlaceTree } from "@/lib/places";
+import { CameraButton } from "@/components/camera";
 import { PhotoButton } from "@/components/photo-button";
 import { PlacePicker } from "./place-picker";
 import type { SceneCandidate } from "./scene";
@@ -28,6 +29,7 @@ export function AddManyFlow({ tree, defaultRoomId }: { tree: PlaceTree; defaultR
   const [size, setSize] = useState({ width: 1, height: 1 });
   const [rows, setRows] = useState<Row[]>([]);
   const [notice, setNotice] = useState<string | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const photoRef = useRef<HTMLImageElement>(null);
 
   const included = rows.filter((row) => row.include);
@@ -148,7 +150,14 @@ export function AddManyFlow({ tree, defaultRoomId }: { tree: PlaceTree; defaultR
             </div>
           )}
           <div className="flex flex-wrap gap-2">
-            <PhotoButton label="Take photo" capture onPick={onPhoto} disabled={busy} />
+            <CameraButton
+              title="Photograph the open drawer"
+              label={token ? "Camera, new photo" : "Camera"}
+              open={cameraOpen}
+              disabled={busy}
+              onOpenChange={(open) => setCameraOpen(open)}
+              onPick={onPhoto}
+            />
             <PhotoButton label={token ? "Start over with another photo" : "Choose photo"} onPick={onPhoto} disabled={busy} />
           </div>
           {notice ? <p className="text-xs text-soft">{notice}</p> : null}

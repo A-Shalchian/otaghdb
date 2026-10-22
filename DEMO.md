@@ -18,7 +18,7 @@ Everything runs on one laptop (RTX 4060 with 8 GB, 16 GB RAM). Nothing calls the
 1. Close LM Studio and Bionic, or unload their models. Any other model on the GPU pushes Qwen partly onto the CPU and every answer gets several times slower.
 2. In PowerShell at the repo root, run `.\start.ps1`. It starts Ollama and the vision service if they are not running, loads Qwen onto the GPU, prints `ollama ps`, then starts the app. The `ollama ps` line must say `100% GPU`. If it does not, the script prints a warning.
 3. Open `http://localhost:3100/app`.
-4. For the phone camera, run `tailscale serve --bg 3100` and open the HTTPS address it prints on the phone. Phone browsers only allow the camera on HTTPS. The upload button works without it.
+4. Connect the phones. `.\start.ps1` shares the app on your tailnet with `tailscale serve` and prints the phone address. On the laptop, open Phone in the app header: it shows that address as a QR code. Each phone needs the Tailscale app signed in to the same tailnet. Scan the code, tap Camera on any add screen, and allow camera access. The address only opens for devices on your tailnet.
 5. Add one item by hand to warm everything up. The first AI call after loading takes about 15 seconds; later ones take 3 to 5.
 6. Have about 30 real items in the database. The fastest way is "Add a whole drawer" on a few drawers and shelves.
 7. Copy the database as a backup: `copy data\otaghdb.sqlite data\backups\demo.sqlite`. To restore, stop the app and copy it back.

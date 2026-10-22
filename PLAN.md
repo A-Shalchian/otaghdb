@@ -48,7 +48,7 @@ Out of scope: 3D scans, login, multiple users, cloud hosting.
 
 - The landing page lives at `/` and the app at `/app`. Anyone who clones and runs OtaghDB sees the landing page first, and "Open your room" takes them into the app.
 - The wordmark carries one small line under it: "otagh (n.) Persian for room".
-- 16 landing designs exist side by side while we choose one. A switcher pill at the bottom of the page flips between them (`/?v=slug`, or the left and right arrow keys). Before submitting we keep one and delete the rest.
+- 3 landing designs remain side by side while we choose one: Knolling, Pixel room and Just ask. A switcher pill at the bottom of the page flips between them (`/?v=slug`, or the left and right arrow keys). Before submitting we keep one and delete the rest.
 - Every design uses the same copy and facts from `src/features/landing/content.ts` and the same object drawings from `objects.tsx`, so choosing a design never changes what the page says.
 - OtaghDB is distributed as a repo you clone and run. The models are open-weight, so hosting them on a rented GPU server is possible, but it costs money and needs login and per-user data, which are out of scope. Running locally also means photos of your things never leave your laptop.
 - The landing page alone can later be exported as a static page and hosted for free, pointing people to the repo.
@@ -158,7 +158,14 @@ Photos live in `data/images/<item id>/` as `original.jpg`, `cutout.png` and `spr
 
 ### Phone camera: Tailscale
 
-Phone browsers only allow the live camera on HTTPS pages. `tailscale serve` gives the laptop an HTTPS address the phone can open. A plain upload button works as a fallback because it does not need HTTPS.
+Phone browsers only allow the live camera on HTTPS pages. `tailscale serve --bg 3100` gives the laptop an HTTPS address like `laptop.tail1234.ts.net` that only devices on the tailnet can open. The app has no login, so keeping it off the public internet is what keeps the inventory private. Funnel would make it public and is not used.
+
+- `start.ps1` runs `tailscale serve` when Tailscale is signed in and prints the phone address. It gives up after 20 seconds with a hint, because the first serve on a tailnet can stop to ask for HTTPS certificates to be turned on.
+- The Phone page (`/app/phone`) reads `tailscale status` and `tailscale serve status` and shows the address as a QR code, or says what is missing.
+- `next.config.ts` allows `**.ts.net` for Server Actions and for the dev server, because requests from the phone carry the tailnet address as their origin.
+- The Camera button opens a full-screen live viewfinder (`getUserMedia`) with a shutter and a front and back flip. A frame is drawn to a canvas and sent as a JPEG.
+- On the add-one screen the camera opens again after each save until you press Close, so adding a pile of things is shoot, check, save, repeat.
+- Without HTTPS (plain wifi address) the same button opens the phone's own camera app through a file input, and Choose photo always works.
 
 ## How each feature works
 

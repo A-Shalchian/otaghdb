@@ -65,6 +65,8 @@ You need Windows with an 8 GB NVIDIA GPU (or change the model to `qwen3.5:4b`), 
 
    The script starts Ollama and the vision service if needed, loads Qwen onto the GPU, checks it fits fully, builds the app once and serves it at http://localhost:3100. Use `.\start.ps1 -Dev` while developing. The first vision service start downloads about 2 GB of models.
 
+To take photos with a phone, install Tailscale on the laptop and the phone and sign both in to the same tailnet. `start.ps1` then shares the app at a private HTTPS address, and the Phone page in the app shows it as a QR code. The live camera needs that HTTPS address; on plain wifi the Camera button opens the phone's camera app instead.
+
 Photos and the database live in `data/`, which is not committed, so pictures of your things never leave the laptop.
 
 ## More
