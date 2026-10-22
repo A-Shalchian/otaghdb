@@ -63,6 +63,8 @@ function Start-PhoneLink {
   # The first serve on a tailnet can stop to ask for HTTPS to be turned on,
   # so it gets a time limit instead of holding up the app.
   $serve = Start-Process tailscale -ArgumentList "serve", "--bg", "3100" -NoNewWindow -PassThru
+  # Without touching Handle first, ExitCode comes back empty and a working serve looks like a failure.
+  $null = $serve.Handle
   if (-not $serve.WaitForExit(20000) -or $serve.ExitCode -ne 0) {
     if (-not $serve.HasExited) { $serve.Kill() }
     Write-Warning "tailscale serve did not finish. Turn on HTTPS Certificates at https://login.tailscale.com/admin/dns, then run this again."
