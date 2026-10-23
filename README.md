@@ -50,6 +50,10 @@ There are no API keys and no cloud calls, and it keeps working with the wifi off
 
 **Pixel room.** Each item already gets a 16-color sprite made from its own cutout. You can drag the sprites around a grid of the room, and their positions save. For now every room gets the same plain grid. Next, the grid becomes a real floor plan with the furniture drawn in.
 
+**Tap to cut on "Do I own this?".** In a busy photo, U2-Net can keep more than one object, for example a selfie stick together with the backpack behind it. SigLIP then compares the whole cutout, so the score drops. Tapping the thing you mean will send that point to SAM 2.1, which cuts out only that object, the same way the Add page already works.
+
+**Clearer match wording.** Today the check says "Maybe" at 80% and "Yes" at 85%. A folded and an unfolded selfie stick scored 74%, still far ahead of the next item at 63%, but the check said "Probably not". It will say "Maybe" when the top match is clearly ahead of everything else, for example at least 70% and 8 points above the next one.
+
 ## How it works
 
 ### The models
