@@ -169,3 +169,19 @@ export async function deleteItem(itemId: number) {
   await removeItemImages(itemId);
   redirect(item?.room_id ? `/app?room=${item.room_id}` : "/app");
 }
+
+export type MoveState = { error: string | null; moved?: boolean };
+
+export async function moveItem(itemId: number, _prev: MoveState, formData: FormData): Promise<MoveState> {
+  const place = PlaceFields.safeParse(Object.fromEntries(formData));
+  if (!place.success) return { error: "Pick a place." };
+  if (!db.prepare("select 1 from items where id = ?").get(itemId)) return { error: "That item no longer exists." };
+
+  const placement = resolvePlacement(place.data);
+  if ("error" in placement) return { error: placement.error };
+  const result = placeItems([itemId], placement);
+  if (result.error) return { error: result.error };
+
+  refresh();
+  return { error: null, moved: true };
+}

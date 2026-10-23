@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { AppMenu } from "@/components/app-menu";
 import { Wordmark } from "@/components/wordmark";
 
-export default function AppLayout({ children }: LayoutProps<"/app">) {
+export default function AppLayout({ children, modal }: LayoutProps<"/app">) {
   return (
     <>
       <header className="border-b border-line">
@@ -25,6 +25,7 @@ export default function AppLayout({ children }: LayoutProps<"/app">) {
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      {modal}
     </>
   );
 }
