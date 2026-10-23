@@ -77,15 +77,7 @@ On screen, the hanging rod is a row of clothes on hangers that you swipe through
 
 Underneath, a closet is furniture made from a template. Each compartment knows what usually goes in it, so the add form suggests "closet, hanging rod" for a jacket and shows a gentle note if a cable lands on the rod.
 
-### 7. The pixel room
-
-Open a room, then "pixel room". Press "Arrange" if items are not placed yet.
-
-On screen, the room is a pixel-art floor with each item as its own sprite. Drag one somewhere else; tap one to see its name.
-
-No AI runs here. `sharp` shrinks each cutout to 48 pixels (64 for jewelry), makes the edges hard and cuts it to 16 colors. Positions are saved per item.
-
-### 8. Turn the wifi off
+### 7. Turn the wifi off
 
 Turn wifi off and add one more item. It still cuts out, gets named and saves, because every model runs on the laptop.
 

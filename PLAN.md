@@ -509,9 +509,8 @@ Stretch goals, in order:
 3. Ask "move everything in the black backpack to the closet shelf". A preview card lists the items. Apply.
 4. Ask "I'm going camping for 3 days". A checklist grouped by room, plus "you don't own a sleeping bag".
 5. Point the phone at a hoodie and ask "do I already own this?". It shows the match.
-6. Open the pixel room.
-7. Open the closet view and swipe through the hanging rod. Filter to jackets.
-8. Turn wifi off and add one more item. It still works because every model runs on the laptop.
+6. Open the closet view and swipe through the hanging rod. Filter to jackets.
+7. Turn wifi off and add one more item. It still works because every model runs on the laptop.
 
 ## Risks and fallbacks
 
