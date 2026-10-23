@@ -15,7 +15,7 @@ Everything runs on one laptop (RTX 4060 with 8 GB, 16 GB RAM). Nothing calls the
 
 ## Before the demo
 
-1. Close LM Studio and Bionic, or unload their models. Any other model on the GPU pushes Qwen partly onto the CPU and every answer gets several times slower.
+1. Close LM Studio, Bionic and ComfyUI, or unload their models. Any other model on the GPU pushes Qwen partly onto the CPU and every answer gets several times slower. With 16 GB of RAM, a model loaded in LM Studio can also stop Qwen from loading at all: in testing the load timed out after 6 minutes.
 2. In PowerShell at the repo root, run `.\start.ps1`. It starts Ollama and the vision service if they are not running, loads Qwen onto the GPU, prints `ollama ps`, then starts the app. The `ollama ps` line must say `100% GPU`. If it does not, the script prints a warning.
 3. Open `http://localhost:3100/app`.
 4. Connect the phones. `.\start.ps1` shares the app on your tailnet with `tailscale serve` and prints the phone address. On the laptop, open Phone in the app header: it shows that address as a QR code. Each phone needs the Tailscale app signed in to the same tailnet. Scan the code, tap Camera on any add screen, and allow camera access. The address only opens for devices on your tailnet.
@@ -108,6 +108,7 @@ Turn wifi off and add one more item. It still cuts out, gets named and saves, be
 
 | Problem | What to do |
 |---|---|
+| `start.ps1` warns that Qwen did not load | Another app is using the memory. Unload models in LM Studio, Bionic or ComfyUI, then run `.\start.ps1` again. The app starts anyway, and adding still saves without AI names. |
 | Answers take 20 seconds or more | Run `ollama ps`. If it does not say `100% GPU`, unload models in LM Studio or Bionic and run `.\start.ps1` again. |
 | "The vision service is not running" | Run `services\vision\start.ps1` and wait until `http://localhost:7000/health` shows `"ok": true`. Adding still works without it, but without cutouts. |
 | "Ollama is not running" | Open the Ollama app. The add form still saves; fill the name yourself. |

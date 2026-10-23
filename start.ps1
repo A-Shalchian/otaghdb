@@ -34,16 +34,24 @@ if (-not (Test-Up "http://127.0.0.1:7000/health")) {
   Wait-Up "http://127.0.0.1:7000/health" "The vision service" 600 "Check its window for the error."
 }
 
+$gpuApps = @(Get-Process "llama-server", "LM Studio", "Bionic", "Comfy Desktop" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ProcessName -Unique)
+if ($gpuApps) {
+  Write-Warning "These apps may be holding GPU memory: $($gpuApps -join ', '). Unload their models if Qwen does not fit."
+}
+
 # Loading with the same num_ctx the app sends keeps Ollama from reloading
 # the model on the first real request.
 Write-Host "Loading $model onto the GPU..."
 $body = @{ model = $model; keep_alive = "30m"; options = @{ num_ctx = 4096 } } | ConvertTo-Json
-Invoke-RestMethod "http://127.0.0.1:11434/api/generate" -Method Post -Body $body -ContentType "application/json" | Out-Null
-
-$ps = ollama ps | Out-String
-Write-Host $ps
-if ($ps -notmatch "100% GPU") {
-  Write-Warning "Part of the model is on the CPU, so answers will be slow. Unload models in LM Studio or Bionic, then run this again."
+try {
+  Invoke-RestMethod "http://127.0.0.1:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 600 | Out-Null
+  $ps = ollama ps | Out-String
+  Write-Host $ps
+  if ($ps -notmatch "100% GPU") {
+    Write-Warning "Part of the model is on the CPU, so answers will be slow. Unload models in LM Studio or Bionic, then run this again."
+  }
+} catch {
+  Write-Warning "$model did not load, usually because other apps are using the memory. The app starts anyway: adding still saves, without AI names."
 }
 
 function Start-PhoneLink {
@@ -76,9 +84,21 @@ function Start-PhoneLink {
 
 Start-PhoneLink
 
+function Test-BuildStale {
+  if (-not (Test-Path ".next/BUILD_ID")) { return $true }
+  $built = (Get-Item ".next/BUILD_ID").LastWriteTime
+  $sources = @(Get-ChildItem "src", "db", "public" -Recurse -File -ErrorAction SilentlyContinue)
+  $sources += @(Get-ChildItem "next.config.ts", "package.json", "pnpm-lock.yaml" -ErrorAction SilentlyContinue)
+  return [bool]($sources | Where-Object { $_.LastWriteTime -gt $built } | Select-Object -First 1)
+}
+
 if ($Dev) {
   pnpm dev
 } else {
-  if (-not (Test-Path ".next/BUILD_ID")) { pnpm build }
+  if (Test-BuildStale) {
+    Write-Host "The code changed since the last build, so building first..."
+    pnpm build
+    if ($LASTEXITCODE -ne 0) { throw "The build failed. Fix the error above, then run this again." }
+  }
   pnpm start
 }
