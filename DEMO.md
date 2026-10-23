@@ -35,7 +35,7 @@ On screen, after about 10 seconds the photo shows a numbered box on every object
 Underneath, four things happen.
 
 - The server shrinks the photo to 1280 pixels and sends it to Qwen with a JSON schema. Qwen returns every object with a name, category, color and a box on a 0 to 1000 scale (about 3.5 seconds).
-- The server drops broken boxes and boxes covering most of the photo, converts the rest to pixels, and sends all of them to SAM 2.1 in one request. SAM returns one cutout per box (about 3 seconds for a batch).
+- The server drops broken boxes and boxes covering most of the photo, converts the rest to pixels, and sends all of them to SAM 2.1 in one request. SAM cuts from a 2048-pixel copy of the photo, so each cutout keeps 1.6 times the detail of the copy Qwen saw. SAM returns one cutout per box (about 3 seconds for a batch).
 - A tap sends one point to SAM, then the cutout to Qwen for a name.
 - Saving stores each cutout, a crop of the original, a 16-color sprite and a SigLIP vector.
 

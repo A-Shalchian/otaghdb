@@ -197,7 +197,7 @@ Fixed category list: clothing, shoes, accessories, jewelry, bags, books, documen
 
 ### Adding many items from one photo
 
-1. Photograph a drawer, shelf or desk. The server shrinks it to 1280 pixels on the long side, since small objects need more pixels.
+1. Photograph a drawer, shelf or desk. The server keeps two copies: 1280 pixels on the long side for Qwen, and 2048 pixels for SAM to cut from. Qwen keeps the 1280-pixel copy that detection was tested and timed with. SAM cuts from the bigger one so each small object keeps its detail. Boxes are stored in 1280-pixel coordinates and scaled up for every cut.
 2. Qwen3.5 gets the photo and this schema, and returns every distinct object:
 
    ```json

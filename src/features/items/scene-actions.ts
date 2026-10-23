@@ -8,10 +8,12 @@ import {
   cropBox,
   isStagingToken,
   makeSprite,
+  readSceneCutSource,
   readStaged,
   removeItemImages,
   removeStaging,
   saveItemImages,
+  scaleBox,
 } from "@/lib/images";
 import { resolvePlacement } from "@/lib/places";
 import { toBlob } from "@/lib/vectors";
@@ -52,9 +54,9 @@ export async function saveScene(_prev: SceneSaveState, formData: FormData): Prom
   const placement = resolvePlacement(place.data);
   if ("error" in placement) return { error: placement.error };
 
-  const scene = await readStaged(token, "scene.jpg");
+  const source = await readSceneCutSource(token);
   const objects = new Map((await readSceneObjects(token)).map((o) => [o.n, o]));
-  if (!scene) return { error: "That photo expired. Take it again." };
+  if (!source) return { error: "That photo expired. Take it again." };
 
   const prepared: {
     item: z.infer<typeof SceneItems>[number];
@@ -72,7 +74,7 @@ export async function saveScene(_prev: SceneSaveState, formData: FormData): Prom
       item,
       object,
       cutout,
-      original: await cropBox(scene, object.box),
+      original: await cropBox(source.full, scaleBox(object.box, source.scale)),
       sprite: await makeSprite(cutout, item.category, object.cutout),
       embedding: await embedImage(cutout).then(toBlob).catch(() => null),
     });

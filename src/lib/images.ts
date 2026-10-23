@@ -14,6 +14,7 @@ export type ImageFile = keyof typeof IMAGE_FILES;
 
 export const SINGLE_MAX_SIDE = 1024;
 export const SCENE_MAX_SIDE = 1280;
+const SCENE_CUT_MAX_SIDE = 2048;
 
 const STAGING_DIR = path.join(DATA_DIR, "staging");
 const STAGING_MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -76,18 +77,42 @@ async function cleanOldStaging() {
   }
 }
 
-export async function stagePhoto(photo: Buffer, maxSide: number, file: "original.jpg" | "scene.jpg") {
-  const { data, info } = await sharp(photo)
+function resizePhoto(photo: Buffer, maxSide: number, quality = 88) {
+  return sharp(photo)
     .rotate()
     .resize({ width: maxSide, height: maxSide, fit: "inside", withoutEnlargement: true })
-    .jpeg({ quality: 88 })
+    .jpeg({ quality })
     .toBuffer({ resolveWithObject: true });
+}
+
+export async function stagePhoto(photo: Buffer, maxSide: number, file: "original.jpg" | "scene.jpg") {
+  const { data, info } = await resizePhoto(photo, maxSide);
 
   const token = randomUUID();
   await mkdir(path.join(STAGING_DIR, token), { recursive: true });
   await writeStaged(token, file, data);
   void cleanOldStaging();
   return { token, jpg: data, width: info.width, height: info.height };
+}
+
+// Qwen sees the 1280-pixel scene.jpg, but a drawer's cutouts and crops come from
+// a larger copy so each item keeps its detail. Boxes stay in scene.jpg pixels.
+export async function stageSceneCopy(token: string, photo: Buffer) {
+  const { data, info } = await resizePhoto(photo, SCENE_CUT_MAX_SIDE, 92);
+  await writeStaged(token, "scene-full.jpg", data);
+  return { jpg: data, width: info.width };
+}
+
+export async function readSceneCutSource(token: string) {
+  const scene = await readStaged(token, "scene.jpg");
+  if (!scene) return null;
+  const full = (await readStaged(token, "scene-full.jpg")) ?? scene;
+  const [sceneMeta, fullMeta] = await Promise.all([sharp(scene).metadata(), sharp(full).metadata()]);
+  return { full, scale: (fullMeta.width ?? 1) / (sceneMeta.width ?? 1) };
+}
+
+export function scaleBox(box: [number, number, number, number], scale: number) {
+  return box.map((value) => Math.round(value * scale)) as [number, number, number, number];
 }
 
 export async function onWhite(image: Buffer) {
