@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { C, mono, sans } from "./theme";
+import { C, mono, sans, wordmark } from "./theme";
 
 export function useIn(delay = 0, damping = 18, mass = 0.8) {
   const frame = useCurrentFrame();
@@ -38,6 +38,14 @@ export function Typed({ text, start, cps = 28, caret = true, style }: { text: st
       {text.slice(0, shown)}
       {caret && typing ? <span style={{ opacity: blink || shown < text.length ? 1 : 0, fontWeight: 300 }}>|</span> : null}
     </span>
+  );
+}
+
+export function Wordmark({ size, style }: { size: number; style?: CSSProperties }) {
+  return (
+    <div style={{ fontFamily: wordmark, fontWeight: 800, fontSize: size, lineHeight: 1, letterSpacing: "-0.045em", color: C.wordmarkInk, ...style }}>
+      Otagh<span style={{ color: C.accent }}>DB</span>
+    </div>
   );
 }
 
