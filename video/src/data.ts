@@ -82,18 +82,15 @@ export const sprites = [
   { id: 9, x: 12, y: 7 },
 ];
 
-export const clutter = [
-  item(5, "cutout.png"),
-  item(6, "cutout.png"),
-  item(7, "cutout.png"),
-  staticFile("drawer/obj-2.png"),
-  item(9, "cutout.png"),
-  item(11, "cutout.png"),
-  item(12, "cutout.png"),
-  item(10, "cutout.png"),
-  staticFile("drawer/obj-1.png"),
-  item(8, "cutout.png"),
-];
+// Wikimedia Commons photos (credits in video/README.md), cut out by the app's vision service.
+export const lost = [
+  { word: "keys", at: 124 },
+  { word: "charger", at: 135 },
+  { word: "headphones", at: 146 },
+  { word: "wallet", at: 158 },
+  { word: "sunglasses", at: 171 },
+  { word: "passport", at: 186 },
+].map((w) => ({ ...w, src: staticFile(`hook/${w.word}.png`) }));
 
 export const models = [
   { name: "Qwen3.5 9B", job: "Names things, finds every object in a photo, answers questions", runs: "Ollama · GPU" },

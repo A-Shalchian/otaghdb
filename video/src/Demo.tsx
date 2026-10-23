@@ -28,7 +28,7 @@ function transition(into: Into) {
 }
 
 const SCENES: { id: string; frames: number; Scene: () => React.JSX.Element; into: Into }[] = [
-  { id: "hook", frames: 210, Scene: Hook, into: "fade" },
+  { id: "hook", frames: 240, Scene: Hook, into: "fade" },
   { id: "logo", frames: 120, Scene: Logo, into: "fade" },
   { id: "snap", frames: 420, Scene: SnapOne, into: "slide-right" },
   { id: "drawer", frames: 330, Scene: Drawer, into: "slide-up" },

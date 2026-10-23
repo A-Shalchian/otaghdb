@@ -1,4 +1,5 @@
 import { Audio, interpolate, Sequence, staticFile, useVideoConfig } from "remotion";
+import { lost } from "./data";
 import { SCENE_STARTS } from "./Demo";
 import narration from "./narration.json";
 import { FPS } from "./theme";
@@ -11,7 +12,11 @@ const range = (count: number, start: number, step: number) => Array.from({ lengt
 const typing = (start: number, frames: number, volume = 0.1): Cue[] => range(Math.ceil(frames / 2), start, 2).map((at) => [at, "type", volume]);
 
 const CUES: Record<string, Cue[]> = {
-  hook: [...range(10, 6, 5).map((at): Cue => [at, "pop", 0.1]), ...typing(104, 32, 0.14)],
+  hook: [
+    ...range(lost.length, 6, 6).map((at): Cue => [at, "pop", 0.1]),
+    ...typing(104, 18, 0.14),
+    ...lost.map(({ at }, i): Cue => (i === lost.length - 1 ? [at, "pop", 0.32] : [at, "tick", 0.3])),
+  ],
   logo: [[6, "ding", 0.22]],
   snap: [
     [28, "shutter", 0.5],
