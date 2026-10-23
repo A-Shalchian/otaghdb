@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { AppMenu } from "@/components/app-menu";
 import { Wordmark } from "@/components/wordmark";
 
@@ -17,7 +18,9 @@ export default function AppLayout({ children }: LayoutProps<"/app">) {
             >
               Add
             </Link>
-            <AppMenu />
+            <Suspense fallback={<div className="h-[42px] w-[42px] rounded-full border border-line bg-card sm:w-36" />}>
+              <AppMenu />
+            </Suspense>
           </div>
         </div>
       </header>
