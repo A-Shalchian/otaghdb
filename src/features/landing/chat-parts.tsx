@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { sampleItems, type SampleItem } from "../content";
-import { ObjectArt } from "../objects";
+import { sampleItems, type SampleItem } from "./content";
+import { ObjectArt } from "./objects";
 
 export const chatFocus =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3d4f8f]";
@@ -35,7 +35,15 @@ export function Asked({ text, id }: { text: string; id?: string }) {
   );
 }
 
-export function Replied({ children, delay }: { children: ReactNode; delay?: number }) {
+export function Replied({
+  children,
+  delay,
+  className,
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+}) {
   return (
     <div
       className={delay === undefined ? "chat-scroll" : "chat-rise"}
@@ -45,7 +53,7 @@ export function Replied({ children, delay }: { children: ReactNode; delay?: numb
         <span aria-hidden="true" className="size-2 rounded-full bg-[#3d4f8f]" />
         OtaghDB
       </p>
-      {children}
+      <div className={className}>{children}</div>
     </div>
   );
 }
@@ -58,7 +66,7 @@ const campingRooms = Array.from(new Set(camping.map((item) => item.room)));
 
 export function PackingList() {
   return (
-    <div className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+    <div className="grid gap-x-10 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
       {campingRooms.map((room) => (
         <div key={room} className="border-t border-[#c4ceda] pt-3">
           <h3 className="text-sm text-[#4f5b69]">{room}</h3>

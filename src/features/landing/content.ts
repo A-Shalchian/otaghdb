@@ -3,7 +3,6 @@ import type { ObjectKey } from "./objects";
 export const brand = {
   name: "OtaghDB",
   meaning: "otagh (n.) Persian for room",
-  persian: "اتاق",
   tagline: "Your room, as a database.",
   pitch:
     "Photograph your things. OtaghDB cuts each one out, names it, and files it under the room, the shelf and the bag it lives in. Then ask where anything is.",
@@ -27,12 +26,6 @@ export const steps = [
     body: "\"Where is my passport?\" \"What do I bring camping?\" \"Move everything in the black backpack to the closet.\"",
   },
 ];
-
-export const answer = {
-  question: "where is my passport?",
-  reply: "In the black backpack, on the closet shelf, in the bedroom.",
-  chain: ["passport", "black backpack", "closet shelf", "bedroom"],
-};
 
 export const localPitch = {
   title: "Runs on your machine",
@@ -80,4 +73,4 @@ export const sampleItems: SampleItem[] = [
   { id: 90, name: "potted plant", category: "decor", room: "living room", spot: "windowsill", container: null, kept: "still alive", discard: "never", object: "plant" },
 ];
 
-export const stats = { items: 214, rooms: 5, containers: 11 };
+export const stats = { items: 214, rooms: 5 };

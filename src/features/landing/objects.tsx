@@ -188,5 +188,3 @@ export function ObjectArt({
     </svg>
   );
 }
-
-export const objectKeys = Object.keys(drawings) as ObjectKey[];

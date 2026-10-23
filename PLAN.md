@@ -48,8 +48,8 @@ Out of scope: 3D scans, login, multiple users, cloud hosting.
 
 - The landing page lives at `/` and the app at `/app`. Anyone who clones and runs OtaghDB sees the landing page first, and "Open your room" takes them into the app.
 - The wordmark carries one small line under it: "otagh (n.) Persian for room".
-- 3 landing designs remain side by side while we choose one: Knolling, Pixel room and Just ask. A switcher pill at the bottom of the page flips between them (`/?v=slug`, or the left and right arrow keys). Before submitting we keep one and delete the rest.
-- Every design uses the same copy and facts from `src/features/landing/content.ts` and the same object drawings from `objects.tsx`, so choosing a design never changes what the page says.
+- The design is Just ask: the page reads as a chat thread. The hero types sample questions and answers each one with the item card and its location chain. On screens 1024 pixels and wider the hero splits into two columns, the pitch on the left and the live question on the right.
+- The copy and facts live in `src/features/landing/content.ts` and the object drawings in `objects.tsx`.
 - OtaghDB is distributed as a repo you clone and run. The models are open-weight, so hosting them on a rented GPU server is possible, but it costs money and needs login and per-user data, which are out of scope. Running locally also means photos of your things never leave your laptop.
 - The landing page alone can later be exported as a static page and hosted for free, pointing people to the repo.
 
@@ -415,7 +415,7 @@ otaghdb/
       chat/               ask and act: agent loop, tools, proposals
       lists/              packing lists
       room/               pixel room
-      landing/            landing designs, switcher, shared copy and object drawings
+      landing/            landing page, copy and object drawings
       furniture/          room page, furniture page, compartments
       closet/             clothes-only closet view
     lib/

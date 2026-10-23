@@ -1,8 +1,8 @@
 "use client";
 
 import { memo, useEffect, useState, useSyncExternalStore } from "react";
-import { sampleItems, stats, type SampleItem } from "../content";
-import { ObjectArt } from "../objects";
+import { sampleItems, stats, type SampleItem } from "./content";
+import { ObjectArt } from "./objects";
 import { SendIcon } from "./chat-parts";
 
 const QUESTIONS = [
@@ -91,9 +91,9 @@ function Answer({ question, active }: { question: Question; active: boolean }) {
       >
         {replyFor(item)}
       </p>
-      <div className="mt-8 grid gap-8 md:grid-cols-[200px_1fr] md:items-start">
+      <div className="mt-8 grid gap-8 sm:grid-cols-[200px_1fr] sm:items-start">
         <div
-          className={`${rise} w-full max-w-[240px] rounded-[18px] border border-[#c4ceda] bg-[#f6f8fa] p-4 md:max-w-none`}
+          className={`${rise} w-full max-w-[240px] rounded-[18px] border border-[#c4ceda] bg-[#f6f8fa] p-4 sm:max-w-none`}
           style={{ animationDelay: "0.3s" }}
         >
           <div className="grid aspect-square place-items-center rounded-[12px] bg-[#e1e7ef]">
@@ -103,16 +103,16 @@ function Answer({ question, active }: { question: Question; active: boolean }) {
           <p className="text-sm text-[#4f5b69]">{item.category}</p>
           <p className="text-sm text-[#4f5b69]">Kept because: {item.kept}</p>
         </div>
-        <ol aria-label="Where it is" className="grid md:mt-6 md:auto-cols-fr md:grid-flow-col">
+        <ol aria-label="Where it is" className="grid sm:mt-2">
           {path.map((node, index) => (
             <li
               key={node.kind}
-              className={`${rise} relative border-l-2 border-[#9fb0d6] pb-6 pl-6 last:border-transparent last:pb-0 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pr-4 md:pt-6`}
+              className={`${rise} relative border-l-2 border-[#9fb0d6] pb-6 pl-6 last:border-transparent last:pb-0`}
               style={{ animationDelay: `${0.45 + index * 0.12}s` }}
             >
               <span
                 aria-hidden="true"
-                className={`absolute -left-[8px] top-0 size-3.5 rounded-full border-2 border-[#3d4f8f] md:-top-[8px] md:left-0 ${
+                className={`absolute -left-[8px] top-0 size-3.5 rounded-full border-2 border-[#3d4f8f] ${
                   index === path.length - 1 ? "bg-[#3d4f8f]" : "bg-[#e8ecf1]"
                 }`}
               />
@@ -151,10 +151,11 @@ const AnswerStack = memo(function AnswerStack({ answerIndex }: { answerIndex: nu
 
 export function AskLoop() {
   const reduced = useReducedMotion();
+  // Start on a finished question and answer, so the first paint never shows an empty answer area.
   const [index, setIndex] = useState(0);
-  const [typed, setTyped] = useState(0);
-  const [phase, setPhase] = useState<Phase>("typing");
-  const [shown, setShown] = useState<number | null>(null);
+  const [typed, setTyped] = useState(asked[0].text.length);
+  const [phase, setPhase] = useState<Phase>("holding");
+  const [shown, setShown] = useState(0);
 
   useEffect(() => {
     if (reduced) return;
@@ -186,7 +187,7 @@ export function AskLoop() {
   return (
     <>
       <div className="flex items-center gap-3 rounded-[28px] border border-[#c4ceda] bg-[#f6f8fa] py-2 pl-5 pr-2 sm:pl-7">
-        <h2 className="min-w-0 flex-1 py-2 text-[1.35rem] font-semibold leading-tight tracking-tight sm:text-[2.5rem]">
+        <h2 className="min-w-0 flex-1 py-2 text-[1.35rem] font-semibold leading-tight tracking-tight sm:text-[2.5rem] lg:text-[1.375rem] xl:text-[1.75rem]">
           <span className="sr-only">Ask anything, for example: {asked[0].text}</span>
           <span aria-hidden="true" className="grid">
             <span className="invisible col-start-1 row-start-1">{longest}</span>
