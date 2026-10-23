@@ -34,7 +34,10 @@ if (-not (Test-Up "http://127.0.0.1:7000/health")) {
   Wait-Up "http://127.0.0.1:7000/health" "The vision service" 600 "Check its window for the error."
 }
 
-$gpuApps = @(Get-Process "llama-server", "LM Studio", "Bionic", "Comfy Desktop" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ProcessName -Unique)
+# Ollama runs its own models in a llama-server under its install folder, so only other copies count.
+$gpuApps = @(Get-Process "llama-server", "LM Studio", "Bionic", "Comfy Desktop" -ErrorAction SilentlyContinue |
+  Where-Object { $_.Path -notlike "*\Ollama\*" } |
+  Select-Object -ExpandProperty ProcessName -Unique)
 if ($gpuApps) {
   Write-Warning "These apps may be holding GPU memory: $($gpuApps -join ', '). Unload their models if Qwen does not fit."
 }

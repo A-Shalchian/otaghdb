@@ -115,6 +115,13 @@ export function scaleBox(box: [number, number, number, number], scale: number) {
   return box.map((value) => Math.round(value * scale)) as [number, number, number, number];
 }
 
+export async function solidFraction(png: Buffer) {
+  const { data } = await sharp(png).ensureAlpha().extractChannel("alpha").raw().toBuffer({ resolveWithObject: true });
+  let solid = 0;
+  for (const alpha of data) if (alpha > 128) solid++;
+  return data.length ? solid / data.length : 0;
+}
+
 export async function onWhite(image: Buffer) {
   return sharp(image).flatten({ background: "#ffffff" }).jpeg({ quality: 90 }).toBuffer();
 }

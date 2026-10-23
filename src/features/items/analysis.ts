@@ -1,6 +1,15 @@
 import { db } from "@/lib/db";
 import { describeItem, type ItemGuess } from "@/lib/ollama";
-import { imageUrl, onWhite, readStaged, removeStaged, SINGLE_MAX_SIDE, stagePhoto, writeStaged } from "@/lib/images";
+import {
+  imageUrl,
+  onWhite,
+  readStaged,
+  removeStaged,
+  SINGLE_MAX_SIDE,
+  solidFraction,
+  stagePhoto,
+  writeStaged,
+} from "@/lib/images";
 import { locationText } from "@/lib/places";
 import { errorMessage } from "@/lib/services";
 import { rank, SAME_ITEM_MIN, toBlob } from "@/lib/vectors";
@@ -15,10 +24,22 @@ export type SimilarItem = {
   location: string;
 };
 
+// On a small or busy photo U2-Net can return a faint, almost empty mask. Using
+// that as the cutout would name and match a blank image.
+const MIN_SOLID_FRACTION = 0.05;
+
 export async function stageSinglePhoto(photo: Buffer) {
   const staged = await stagePhoto(photo, SINGLE_MAX_SIDE, "original.jpg");
   try {
-    await writeStaged(staged.token, "cutout.png", await cutout(staged.jpg));
+    const png = await cutout(staged.jpg);
+    if ((await solidFraction(png)) < MIN_SOLID_FRACTION) {
+      return {
+        token: staged.token,
+        hasCutout: false,
+        warning: "The background remover could not find one clear thing. Tap it on the photo to cut it out.",
+      };
+    }
+    await writeStaged(staged.token, "cutout.png", png);
     return { token: staged.token, hasCutout: true, warning: null };
   } catch (error) {
     return { token: staged.token, hasCutout: false, warning: errorMessage(error) };
