@@ -30,11 +30,11 @@ Everything runs on one laptop (RTX 4060 with 8 GB, 16 GB RAM). Nothing calls the
 
 Click Add, then "Photograph a whole drawer instead". Take the photo on the phone.
 
-On screen, after about 10 seconds the photo shows a numbered box on every object, and below it a card per object with its cutout and a name. Untick one wrong card, tap a pen the AI missed, and it appears as a new card a few seconds later. Pick "desk, top drawer" once for the whole batch and press Save.
+On screen, after 10 to 20 seconds (longer with more things in the photo) the photo shows a numbered box on every object, and below it a card per object with its cutout and a name. Untick one wrong card, tap a pen the AI missed, and it appears as a new card a few seconds later. Pick "desk, top drawer" once for the whole batch and press Save.
 
 Underneath, four things happen.
 
-- The server shrinks the photo to 1280 pixels and sends it to Qwen with a JSON schema. Qwen returns every object with a name, category, color and a box on a 0 to 1000 scale (about 3.5 seconds).
+- The server shrinks the photo to 1280 pixels and sends it to Qwen with a JSON schema. Qwen returns every object with a name, category, color and a box on a 0 to 1000 scale (3.5 seconds for a few objects, about 14 for 8, because each object adds to the answer Qwen writes).
 - The server drops broken boxes and boxes covering most of the photo, converts the rest to pixels, and sends all of them to SAM 2.1 in one request. SAM cuts from a 2048-pixel copy of the photo, so each cutout keeps 1.6 times the detail of the copy Qwen saw. SAM returns one cutout per box (about 3 seconds for a batch).
 - A tap sends one point to SAM, then the cutout to Qwen for a name.
 - Saving stores each cutout, a crop of the original, a 16-color sprite and a SigLIP vector.
@@ -99,7 +99,7 @@ Turn wifi off and add one more item. It still cuts out, gets named and saves, be
 | SigLIP vector for an image | 0.5 to 0.9 s |
 | SigLIP vector for text | 0.3 s |
 | Qwen names one item | 3 to 5 s |
-| Qwen finds every object in a photo | 3.5 to 5 s |
+| Qwen finds every object in a photo | 3.5 s for a few objects, 14 s for 8 |
 | Chat question with one tool call | 2 to 3 s |
 | Chat move with four tool calls | 5 s |
 | First Qwen call after loading from disk | 14 to 75 s |
