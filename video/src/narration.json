@@ -1,0 +1,18 @@
+[
+  { "id": "hook-1", "scene": "hook", "at": 8, "text": "I just moved, and I have so much stuff." },
+  { "id": "hook-2", "scene": "hook", "at": 102, "text": "So where did I put my passport?" },
+  { "id": "logo", "scene": "logo", "at": 8, "text": "This is [OtaghDB](/Otˈɑɡdˌibˈi/). [Otagh](/Otˈɑɡ/) means room, in Persian." },
+  { "id": "snap-1", "scene": "snap", "at": 14, "text": "Snap a photo, and tap the thing you mean." },
+  { "id": "snap-2", "scene": "snap", "at": 92, "text": "Sam cuts it out, and [Qwen](/kwˈɛn/) names it, sorts it, and tags it." },
+  { "id": "snap-3", "scene": "snap", "at": 248, "text": "Then say where it lives: the room, the furniture, even the drawer." },
+  { "id": "drawer-1", "scene": "drawer", "at": 10, "text": "Or photograph a whole room at once." },
+  { "id": "drawer-2", "scene": "drawer", "at": 70, "text": "[Qwen](/kwˈɛn/) finds every object, and Sam cuts all eight out in one pass." },
+  { "id": "ask", "scene": "ask", "at": 14, "text": "Later, just ask where something is. It searches your own database, and only points at things that really exist." },
+  { "id": "packing-1", "scene": "packing", "at": 8, "text": "Planning a trip?" },
+  { "id": "packing-2", "scene": "packing", "at": 74, "text": "It builds a packing list from what you already own, and tells you what's missing." },
+  { "id": "look-1", "scene": "look", "at": 10, "text": "You can search by how things look." },
+  { "id": "look-2", "scene": "look", "at": 118, "text": "And in a store, check whether you already own something, before you buy it twice." },
+  { "id": "pixel", "scene": "pixel", "at": 12, "text": "Every item even becomes a pixel sprite, made from its own cutout." },
+  { "id": "local", "scene": "local", "at": 10, "text": "And all of it runs on your laptop, with open-weight models. No API keys. No cloud." },
+  { "id": "outro", "scene": "outro", "at": 8, "text": "[OtaghDB](/Otˈɑɡdˌibˈi/). Know where everything is." }
+]

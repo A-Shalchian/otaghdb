@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts Demo out/otaghdb-demo.mp4 --concurrency=2",
+    "render": "remotion render src/index.ts Demo out/raw.mp4 --concurrency=2 && ffmpeg -v error -y -i out/raw.mp4 -c:v copy -af loudnorm=I=-16:TP=-1.5:LRA=11 -ar 48000 -c:a aac -b:a 192k out/otaghdb-demo.mp4",
+    "voice": "audio/.venv/Scripts/python audio/narrate.py",
+    "sounds": "audio/.venv/Scripts/python audio/sounds.py",
     "assets": "node scripts/collect-assets.mjs"
   },
   "dependencies": {

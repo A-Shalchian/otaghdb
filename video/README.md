@@ -1,6 +1,6 @@
 # OtaghDB demo video
 
-The 83-second demo video, written in code with [Remotion](https://www.remotion.dev). Every name, box, cutout, answer and score on screen is real output from the running app and its local models. The video animates that output; it does not mock it.
+The 83-second narrated demo video, written in code with [Remotion](https://www.remotion.dev). Every name, box, cutout, answer and score on screen is real output from the running app and its local models. The video animates that output; it does not mock it.
 
 ## Render
 
@@ -16,6 +16,22 @@ To check single frames without a full render:
 ```bash
 node scripts/stills.mjs 60 500 1000
 ```
+
+## Voice, sound effects and music
+
+The narrator is [Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) (Apache 2.0), an open-weight text-to-speech model that runs on the CPU. The sound effects and the music bed are synthesized in Python by `audio/sounds.py`, so they need no license. The generated files are committed in `public/audio/`, so a render does not need Python.
+
+To change the narration, edit `src/narration.json` and regenerate the voice. Each line has a scene and the frame in that scene where it starts.
+
+```bash
+py -3.10 -m venv audio/.venv
+audio/.venv/Scripts/pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+audio/.venv/Scripts/pip install kokoro==0.9.4 soundfile==0.13.1 scipy==1.15.3
+npm run voice
+npm run sounds
+```
+
+`npm run voice` writes one WAV per line and `src/voice-durations.json`, which the soundtrack uses to lower the music while the narrator speaks. Pass another Kokoro voice name to `audio/narrate.py` to change the narrator (the default is `af_heart`). `npm run render` mixes everything and normalizes the result to -16 LUFS with ffmpeg.
 
 ## Where the content comes from
 
