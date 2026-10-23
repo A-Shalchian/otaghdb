@@ -42,7 +42,7 @@ export const localPitch = {
 export const models = [
   { name: "Qwen3.5", job: "Sees photos, names things, answers questions", license: "Apache 2.0" },
   { name: "SAM 2.1", job: "Cuts out exactly the object you tap", license: "Apache 2.0" },
-  { name: "BiRefNet", job: "Removes the background automatically", license: "MIT" },
+  { name: "U2-Net", job: "Removes the background automatically", license: "Apache 2.0" },
   { name: "SigLIP 2", job: "Finds things by how they look", license: "Apache 2.0" },
 ];
 
