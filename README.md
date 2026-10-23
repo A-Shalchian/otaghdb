@@ -52,22 +52,53 @@ There are no API keys and no cloud calls, and it keeps working with the wifi off
 
 ## How it works
 
-Four open-weight models each do one job:
+### The models
 
-| Job | Model | License | Runs on |
+Four open-weight models each do one job. None of them calls the internet.
+
+| Model | Made by | License | What it does in OtaghDB |
 |---|---|---|---|
-| Naming, finding objects with boxes, chat and tool calls | Qwen3.5 9B through Ollama | Apache 2.0 | GPU |
-| Background removal | U2-Net through rembg | Apache 2.0 | CPU |
-| Tap-to-cut and cutting out boxes | SAM 2.1 hiera-small | Apache 2.0 | CPU |
-| Search by look and the "do I own this?" check | SigLIP 2 base | Apache 2.0 | CPU |
+| Qwen3.5 9B | Alibaba Qwen team | Apache 2.0 | The language model, and the only one that understands what things are. It reads a cutout and writes the name, category, color, tags and a short description. In a drawer photo it lists every object and draws a box around each one. It runs the chat: it picks which tool to call, then writes the answer. It sees images itself, so no separate vision model is needed. |
+| U2-Net | Xuebin Qin et al. | Apache 2.0 | Removes the background when you add one thing. It finds the most prominent object in the photo and drops everything else. It does not know what the object is. |
+| SAM 2.1 hiera-small | Meta | Apache 2.0 | Cuts out exactly the object it is pointed at. It never chooses on its own. It needs a point or a box. A tap sends a point when U2-Net cut out the wrong thing. In a drawer photo, Qwen's boxes go to SAM, which cuts all of them out in one pass. |
+| SigLIP 2 base | Google | Apache 2.0 | Turns a photo or a sentence into a vector, a list of numbers, in the same space. Photos and words can then be compared directly. This is how "something green and leafy" finds the plants, how the add form warns "you may already own this", and how the "Do I own this?" check scores matches. |
 
-- The app is Next.js 16 with TypeScript and Tailwind CSS. SQLite stores rooms, furniture, items and lists, with FTS5 for keyword search and SigLIP vectors stored as blobs.
-- A Python vision service (FastAPI, Hugging Face Transformers and CPU PyTorch) serves U2-Net cutouts, SAM 2.1 masks and SigLIP 2 vectors.
-- Qwen runs with a 4096-token context, the largest that keeps the model fully on an 8 GB GPU. The other three models run on the CPU.
-- For a drawer photo, the server sends Qwen a 1280-pixel copy and asks for every object with a JSON schema. Qwen returns the boxes, and SAM 2.1 cuts all of them out of a 2048-pixel copy in one request.
-- The chat is a tool-calling loop on Qwen with 8 tools. Four of them read the database. The other four, which move items, retag them, add spots and plan packing lists, only build a proposal. When you press Apply, the server checks the proposal again and saves it in one transaction.
-- Qwen marks each item it mentions with its id. The server drops any id that does not exist, so the chat cannot point at something you do not own.
-- A phone joins through Tailscale, which gives the app a private HTTPS address so the live camera works.
+### What runs the models
+
+| Tool | License | What it does |
+|---|---|---|
+| [Ollama](https://ollama.com), built on llama.cpp | MIT | Runs Qwen on the GPU at `localhost:11434`. |
+| [Hugging Face Transformers](https://github.com/huggingface/transformers) | Apache 2.0 | Downloads SAM 2.1 and SigLIP 2 from the Hugging Face hub and runs them. |
+| [PyTorch](https://pytorch.org), CPU build | BSD-3 | The math under Transformers. It runs on the CPU so the GPU stays free for Qwen. |
+| [rembg](https://github.com/danielgatis/rembg) and ONNX Runtime | MIT | rembg wraps U2-Net, and ONNX Runtime runs it. |
+| [FastAPI](https://fastapi.tiangolo.com) and Uvicorn | MIT, BSD-3 | Put U2-Net, SAM 2.1 and SigLIP 2 behind one local HTTP service at `localhost:7000`, the vision service in `services/vision`. |
+
+### Why Qwen gets a 4096-token context
+
+A token is about three quarters of a word, and a 1280-pixel photo costs about 1,200 tokens. The context is everything Qwen holds for one request: the instructions, the tool descriptions, the chat so far, the photo and its own answer. Qwen3.5 can take 262,144 tokens, but the memory for that context grows with its size. The test laptop's RTX 4060 has 8 GB of its own memory. At 4096 tokens, the model and its context take 5.6 GB, so all of it stays on the GPU and an answer takes 2 to 5 seconds. A larger context pushes part of the model into normal memory, and every answer gets several times slower. Every request sends the same context size, because Ollama reloads the model when it changes.
+
+### The app
+
+| Tool | License | What it does |
+|---|---|---|
+| [Next.js 16](https://nextjs.org) and React 19 | MIT | The pages, the forms that save things, the API routes the phone and the chat call, and the chat's tool loop. |
+| [SQLite](https://sqlite.org) through better-sqlite3 | Public domain, MIT | The whole database in one file, `data/otaghdb.sqlite`: rooms, furniture, compartments, items, lists, and each item's SigLIP vector. |
+| SQLite FTS5 | Public domain | Keyword search over names, colors, tags, descriptions and notes. |
+| [sharp](https://sharp.pixelplumbing.com) | Apache 2.0 | All image work in Node: shrinking photos (1024 pixels for one thing; 1280 pixels for Qwen and 2048 pixels for SAM in a drawer), cropping originals, making the 16-color sprites, and checking that a cutout is not empty. |
+| [Zod](https://zod.dev) | MIT | Checks every form and every JSON answer from Qwen before anything is saved. |
+| Tailwind CSS | MIT | Styling. |
+| node-qrcode | MIT | The QR code on the Phone page. |
+| [Tailscale](https://tailscale.com) client | BSD-3 | Gives the laptop a private HTTPS address so a phone's live camera works. Only devices signed in to your tailnet can open it. |
+
+### One photo, start to finish
+
+1. sharp shrinks the photo to 1024 pixels.
+2. U2-Net cuts out the main object. If the cutout is almost empty, the app keeps the photo and asks you to tap the thing instead, and SAM 2.1 cuts out what you tapped.
+3. Qwen reads the cutout and fills in the name, category, color and tags. Zod checks its answer.
+4. SigLIP 2 turns the cutout into a vector. The app compares it with every saved item and warns if you may already own it.
+5. On save, SQLite stores the item and its vector. The cutout, a crop of the original and a 16-color sprite go to `data/images`.
+
+When you later ask "where is my passport?", Qwen calls the search tool. The app searches SQLite by keyword and by SigLIP vector, then gives Qwen each match with its room, furniture and compartment. Qwen marks each item it mentions with its id, and the server drops any id that does not exist, so the chat cannot point at something you do not own. Tools that change things (move, retag, add a spot, plan a packing list) only build a proposal. Nothing is saved until you press Apply, and the server checks the proposal again first.
 
 Measured on a laptop with an RTX 4060 (8 GB of VRAM):
 
