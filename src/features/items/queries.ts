@@ -31,12 +31,13 @@ export type ItemRow = {
   container_id: number | null;
   container_name: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export const ITEM_COLUMNS = `
   i.id, i.name, i.category, i.clothing_type, i.color, i.description, i.is_container,
   i.would_discard, i.why_kept, i.notes, i.tags_json, i.original_file, i.cutout_file,
-  i.sprite_file, i.grid_x, i.grid_y, i.created_at,
+  i.sprite_file, i.grid_x, i.grid_y, i.created_at, i.updated_at,
   i.room_id, r.name as room_name, i.spot_id, s.name as spot_name,
   f.id as furniture_id, f.name as furniture_name, f.kind as furniture_kind,
   i.container_id, c.name as container_name`;

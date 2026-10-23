@@ -195,7 +195,7 @@ export function AddManyFlow({ tree, defaultRoomId }: { tree: PlaceTree; defaultR
             >
               <div className="flex shrink-0 flex-col items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={row.imageUrl} alt="" className="checkerboard size-20 rounded-xl object-contain p-1" />
+                <img src={row.imageUrl} alt="" className="tile size-20 rounded-xl object-contain p-1" />
                 <label className="flex items-center gap-1.5 font-mono text-[11px]">
                   <input
                     type="checkbox"

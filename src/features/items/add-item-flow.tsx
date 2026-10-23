@@ -201,7 +201,7 @@ export function AddItemFlow({
           <div className="relative overflow-hidden rounded-2xl border border-line bg-card">
             {showCutout ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={cutoutSrc} alt="Cutout" className="checkerboard mx-auto max-h-[28rem] w-full object-contain p-4" />
+              <img src={cutoutSrc} alt="Cutout" className="tile mx-auto max-h-[28rem] w-full object-contain p-4" />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img

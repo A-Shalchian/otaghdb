@@ -33,7 +33,7 @@ export async function ItemDetail({ params }: { params: Promise<{ id: string }> }
 
       <div className="grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         <div className="flex flex-col gap-3">
-          <div className={`overflow-hidden rounded-2xl border border-line bg-card ${item.cutout_file ? "checkerboard" : ""}`}>
+          <div className={`overflow-hidden rounded-2xl border border-line ${item.cutout_file ? "tile" : "bg-card"}`}>
             {main ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={main} alt={item.name} className="mx-auto max-h-[28rem] w-full object-contain p-4" />

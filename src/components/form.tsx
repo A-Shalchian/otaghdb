@@ -2,7 +2,7 @@ export const fieldClass =
   "w-full rounded-xl border border-line bg-card px-3.5 py-2.5 text-sm outline-none placeholder:text-soft focus:border-ink disabled:opacity-60";
 
 export const primaryButton =
-  "rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper transition-opacity hover:opacity-85 disabled:opacity-50";
+  "rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-on-accent transition-opacity hover:opacity-85 disabled:opacity-50";
 
 export const secondaryButton =
   "rounded-full border border-line px-4 py-2 text-sm transition-colors hover:bg-card disabled:opacity-50";

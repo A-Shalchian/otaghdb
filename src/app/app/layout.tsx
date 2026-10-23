@@ -28,7 +28,7 @@ export default function AppLayout({ children }: LayoutProps<"/app">) {
           </div>
           <Link
             href="/app/add"
-            className="shrink-0 rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-opacity hover:opacity-85"
+            className="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-opacity hover:opacity-85"
           >
             Add
           </Link>

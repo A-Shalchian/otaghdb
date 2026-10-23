@@ -1,33 +1,39 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f4f2ec;
-  --card: #fbfaf6;
-  --ink: #1c1b18;
-  --soft: #6f6b62;
-  --line: #dcd8ce;
-  --accent: #2f6b4f;
+  --paper: #e8ecf1;
+  --card: #f6f8fa;
+  --tile: #e1e7ef;
+  --ink: #18212c;
+  --soft: #4f5b69;
+  --line: #c4ceda;
+  --accent: #3d4f8f;
+  --on-accent: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #131311;
-    --card: #1b1a17;
-    --ink: #ebe9e3;
-    --soft: #9a958b;
-    --line: #2d2c28;
-    --accent: #74c49a;
+    --paper: #0f131a;
+    --card: #161b24;
+    --tile: #1e2531;
+    --ink: #e8ecf1;
+    --soft: #98a3b3;
+    --line: #2a3341;
+    --accent: #9fb0d6;
+    --on-accent: #0f131a;
   }
 }
 
 @theme inline {
   --color-paper: var(--paper);
   --color-card: var(--card);
+  --color-tile: var(--tile);
   --color-ink: var(--ink);
   --color-soft: var(--soft);
   --color-line: var(--line);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --color-on-accent: var(--on-accent);
+  --font-sans: var(--font-bricolage-src);
   --font-mono: var(--font-geist-mono);
   --font-bricolage: var(--font-bricolage-src);
 }
@@ -35,13 +41,11 @@
 body {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-bricolage-src), system-ui, sans-serif;
 }
 
-.checkerboard {
-  background-color: var(--card);
-  background-image: conic-gradient(var(--line) 25%, transparent 0 50%, var(--line) 0 75%, transparent 0);
-  background-size: 16px 16px;
+.tile {
+  background-color: var(--tile);
 }
 
 .pixelated {

@@ -37,7 +37,7 @@ export function CheckFlow() {
   return (
     <div className="mt-8 grid gap-8 md:grid-cols-2">
       <div className="flex flex-col gap-3">
-        <div className="checkerboard flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-line">
+        <div className="tile flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-line">
           {result?.cutoutUrl || preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={result?.cutoutUrl ?? preview ?? ""} alt="What you photographed" className="max-h-full w-full object-contain p-4" />
