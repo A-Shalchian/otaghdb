@@ -1,16 +1,6 @@
 import { CATEGORIES } from "@/lib/categories";
 import { parseTags, type ItemRow } from "./queries";
 
-export const LAYOUTS = [
-  { slug: "tree", name: "House tree" },
-  { slug: "sidebar", name: "Sidebar filters" },
-  { slug: "chips", name: "Filter bar" },
-  { slug: "shelves", name: "Shelves" },
-  { slug: "combined", name: "Combined" },
-] as const;
-
-export type Layout = (typeof LAYOUTS)[number]["slug"];
-
 export const SORTS = [
   { slug: "newest", name: "Newest" },
   { slug: "oldest", name: "Oldest" },
@@ -51,7 +41,6 @@ export const COLORS = [
 ] as const;
 
 export type BrowseState = {
-  layout: Layout;
   view: "grid" | "table";
   sort: Sort;
   group: Group | null;
@@ -82,7 +71,6 @@ function oneOf<T extends string>(value: string | null, options: readonly T[]): T
 
 export function parseBrowse(params: Params): BrowseState {
   return {
-    layout: oneOf(first(params.layout), LAYOUTS.map((l) => l.slug)) ?? "combined",
     view: first(params.view) === "table" ? "table" : "grid",
     sort: oneOf(first(params.sort), SORTS.map((s) => s.slug)) ?? "newest",
     group: oneOf(first(params.group), GROUPS.map((g) => g.slug)),
@@ -97,7 +85,7 @@ export function parseBrowse(params: Params): BrowseState {
   };
 }
 
-const DEFAULTS: Partial<Record<keyof BrowseState, string>> = { layout: "combined", view: "grid", sort: "newest" };
+const DEFAULTS: Partial<Record<keyof BrowseState, string>> = { view: "grid", sort: "newest" };
 
 export function browseHref(state: BrowseState, change: Partial<BrowseState> = {}) {
   const params = new URLSearchParams();

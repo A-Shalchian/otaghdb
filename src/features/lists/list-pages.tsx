@@ -103,7 +103,7 @@ export async function ListDetail({ params }: { params: Promise<{ id: string }> }
           </button>
         </form>
         <form action={deleteList.bind(null, list.id)}>
-          <ConfirmButton message="Delete this list? Your things stay as they are." className={`${secondaryButton} text-red-700 dark:text-red-400`}>
+          <ConfirmButton message="Delete this list? Your things stay as they are." className={`${secondaryButton} text-red-700`}>
             Delete list
           </ConfirmButton>
         </form>

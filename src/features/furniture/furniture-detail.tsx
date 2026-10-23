@@ -49,7 +49,7 @@ export async function FurnitureDetail({ params }: { params: Promise<{ id: string
           <form action={deleteFurniture.bind(null, furniture.id)}>
             <ConfirmButton
               message="Delete this furniture? Its things stay in the room without a spot."
-              className={`${secondaryButton} text-red-700 dark:text-red-400`}
+              className={`${secondaryButton} text-red-700`}
             >
               Delete
             </ConfirmButton>

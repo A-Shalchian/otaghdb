@@ -60,7 +60,7 @@ export function ItemEditForm({
             setDeleting(true);
             startTransition(() => deleteItem(itemId));
           }}
-          className={`${secondaryButton} text-red-700 dark:text-red-400`}
+          className={`${secondaryButton} text-red-700`}
         >
           {deleting ? "Deleting..." : "Delete"}
         </button>

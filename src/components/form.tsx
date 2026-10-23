@@ -20,7 +20,7 @@ export function Label({ text, children }: { text: string; children: React.ReactN
 
 export function ErrorText({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="text-sm text-red-700 dark:text-red-400">
+    <p role="alert" className="text-sm text-red-700">
       {children}
     </p>
   );

@@ -11,7 +11,7 @@ export async function PhonePage() {
   const link = await phoneLink();
 
   if (link.state === "ready") {
-    const svg = await QRCode.toString(link.url, { type: "svg", margin: 1, color: { dark: "#1c1b18", light: "#fbfaf6" } });
+    const svg = await QRCode.toString(link.url, { type: "svg", margin: 1, color: { dark: "#18212c", light: "#f6f8fa" } });
     return (
       <div className="grid gap-8 md:grid-cols-[18rem_minmax(0,1fr)]">
         <div

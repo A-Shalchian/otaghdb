@@ -3,10 +3,7 @@ import type { ReactNode } from "react";
 import { AddRoomForm } from "@/features/rooms/add-room-form";
 import { furnitureTitle, type PlaceTree as Places } from "@/lib/places";
 import {
-  browseHref,
   countBy,
-  hasFilters,
-  LAYOUTS,
   matches,
   parseBrowse,
   PLACE_CLEAR,
@@ -14,7 +11,7 @@ import {
   type BrowseState,
 } from "./browse";
 import { ActiveChips, MobileDrawer, Results, SearchBox, SortMenu, ViewToggle, type PlaceNames } from "./browse-parts";
-import { Facets, FilterBar, GroupPicker, Shelves } from "./facets";
+import { Facets, GroupPicker, Shelves } from "./facets";
 import { PlaceTree, type PlaceCounts } from "./place-tree";
 import { getItems, getPlaces, getRooms, type ItemRow } from "./queries";
 
@@ -88,28 +85,6 @@ function WithAside({ aside, drawerLabel, children }: { aside: ReactNode; drawerL
   );
 }
 
-function LayoutSwitcher({ state }: { state: BrowseState }) {
-  return (
-    <nav aria-label="Layout" className="fixed inset-x-0 bottom-4 z-30 flex justify-center px-4">
-      <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-line bg-card p-1 shadow-lg">
-        <span className="shrink-0 px-2.5 font-mono text-[11px] uppercase tracking-wide text-soft">Layout</span>
-        {LAYOUTS.map((layout) => (
-          <Link
-            key={layout.slug}
-            href={browseHref(state, { layout: layout.slug })}
-            aria-current={state.layout === layout.slug ? "page" : undefined}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-sm ${
-              state.layout === layout.slug ? "bg-accent text-on-accent" : "text-soft hover:text-ink"
-            }`}
-          >
-            {layout.name}
-          </Link>
-        ))}
-      </div>
-    </nav>
-  );
-}
-
 export async function Inventory({ searchParams }: { searchParams: SearchParams }) {
   const state = parseBrowse(await searchParams);
   const [rooms, all, places] = await Promise.all([getRooms(), getItems(), getPlaces()]);
@@ -121,74 +96,28 @@ export async function Inventory({ searchParams }: { searchParams: SearchParams }
   const tree = <PlaceTree places={places} counts={placeCounts(all, state)} state={state} />;
   const results = <Results items={items} state={state} />;
 
-  let body: ReactNode;
-  if (state.layout === "tree") {
-    body = (
-      <WithAside aside={tree} drawerLabel="Browse by place">
-        <ActiveChips state={state} names={names} />
-        <Toolbar count={items.length} state={state} />
-        {results}
-      </WithAside>
-    );
-  } else if (state.layout === "sidebar") {
-    body = (
-      <WithAside aside={<Facets items={all} state={state} rooms={rooms} />} drawerLabel="Filters">
-        <ActiveChips state={state} names={names} />
-        <Toolbar count={items.length} state={state} />
-        {results}
-      </WithAside>
-    );
-  } else if (state.layout === "chips") {
-    body = (
-      <div className="flex flex-col gap-4">
-        <Toolbar count={items.length} state={state}>
-          <FilterBar items={all} state={state} rooms={rooms} />
-        </Toolbar>
-        <ActiveChips state={state} names={names} />
-        {results}
-      </div>
-    );
-  } else if (state.layout === "shelves") {
-    body = (
-      <div className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <GroupPicker state={state} />
-          <SortMenu state={state} />
-        </div>
-        {hasFilters(state) ? (
-          <>
-            <ActiveChips state={state} names={names} />
-            {results}
-          </>
-        ) : (
-          <Shelves items={items} state={state} group={state.group ?? "room"} />
-        )}
-      </div>
-    );
-  } else {
-    body = (
-      <WithAside
-        aside={
-          <div className="flex flex-col gap-4">
-            {tree}
-            <div className="border-t border-line pt-3">
-              <Facets items={all} state={state} />
-            </div>
+  const body = (
+    <WithAside
+      aside={
+        <div className="flex flex-col gap-4">
+          {tree}
+          <div className="border-t border-line pt-3">
+            <Facets items={all} state={state} />
           </div>
-        }
-        drawerLabel="Places and filters"
-      >
-        <ActiveChips state={state} names={names} />
-        <Toolbar count={items.length} state={state}>
-          <GroupPicker state={state} allowNone />
-        </Toolbar>
-        {state.group && items.length > 0 ? <Shelves items={items} state={state} group={state.group} /> : results}
-      </WithAside>
-    );
-  }
+        </div>
+      }
+      drawerLabel="Places and filters"
+    >
+      <ActiveChips state={state} names={names} />
+      <Toolbar count={items.length} state={state}>
+        <GroupPicker state={state} />
+      </Toolbar>
+      {state.group && items.length > 0 ? <Shelves items={items} state={state} group={state.group} /> : results}
+    </WithAside>
+  );
 
   return (
-    <div className="flex flex-col gap-6 pb-20">
+    <div className="flex flex-col gap-6">
       <SearchBox />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -212,7 +141,6 @@ export async function Inventory({ searchParams }: { searchParams: SearchParams }
         <AddRoomForm />
       </div>
       {body}
-      <LayoutSwitcher state={state} />
     </div>
   );
 }

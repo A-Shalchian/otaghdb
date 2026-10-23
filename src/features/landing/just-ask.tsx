@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/wordmark";
 import { brand, localPitch, models, repoUrl, steps } from "./content";
 import { RunSteps } from "./run-steps";
-import { chatScrollbars } from "./scrollbars";
 import { AskLoop } from "./ask-loop";
 import {
   Asked,
@@ -17,10 +17,9 @@ export default function JustAsk() {
   return (
     <div className="chat-root min-h-screen w-full bg-[#e8ecf1] pb-24 font-bricolage text-[#18212c]">
       <style>{chatCss}</style>
-      <style>{chatScrollbars}</style>
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:max-w-[1200px] lg:px-10">
         <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1 py-6">
-          <span className="text-xl font-bold tracking-tight">{brand.name}</span>
+          <Wordmark className="text-[1.65rem]" />
           <span className="text-sm text-[#4f5b69]">{brand.meaning}</span>
         </header>
 
@@ -145,7 +144,7 @@ export default function JustAsk() {
         </main>
 
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-2 border-t border-[#c4ceda] pt-5 text-sm text-[#4f5b69]">
-          <span className="text-base font-bold text-[#18212c]">{brand.name}</span>
+          <Wordmark className="text-lg" />
           <span>MIT licensed</span>
         </footer>
       </div>

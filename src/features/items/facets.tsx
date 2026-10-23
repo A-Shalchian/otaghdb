@@ -9,14 +9,13 @@ import {
   GROUPS,
   groupItems,
   matches,
-  PLACE_CLEAR,
   type BrowseState,
   type Group,
   type ItemGroup,
 } from "./browse";
-import { ColorDot, Dropdown, MenuLink, SideLink, SideSection } from "./browse-parts";
+import { ColorDot, SideLink, SideSection } from "./browse-parts";
 import { ItemCard } from "./item-card";
-import { parseTags, type ItemRow, type RoomSummary } from "./queries";
+import { parseTags, type ItemRow } from "./queries";
 
 function facetCounts(items: ItemRow[], state: BrowseState) {
   const scoped = (skip: keyof BrowseState) => items.filter((item) => matches(item, state, skip));
@@ -30,47 +29,13 @@ function facetCounts(items: ItemRow[], state: BrowseState) {
   };
 }
 
-function countRooms(items: ItemRow[], state: BrowseState) {
-  return countBy(
-    items.filter((item) => matches(item, { ...state, ...PLACE_CLEAR })),
-    (item) => item.room_id,
-  );
-}
-
-export function Facets({
-  items,
-  state,
-  rooms,
-}: {
-  items: ItemRow[];
-  state: BrowseState;
-  rooms?: RoomSummary[];
-}) {
+export function Facets({ items, state }: { items: ItemRow[]; state: BrowseState }) {
   const counts = facetCounts(items, state);
-  const roomCounts = rooms ? countRooms(items, state) : null;
   const categories = CATEGORIES.filter((c) => (counts.categories.get(c) ?? 0) > 0 || c === state.category);
   const colors = COLORS.filter((c) => (counts.colors.get(c.name) ?? 0) > 0 || c.name === state.color);
 
   return (
     <div className="flex flex-col gap-4">
-      {rooms && roomCounts ? (
-        <SideSection title="Room">
-          <SideLink href={browseHref(state, PLACE_CLEAR)} active={!state.room} count={[...roomCounts.values()].reduce((a, b) => a + b, 0)}>
-            All rooms
-          </SideLink>
-          {rooms.map((room) => (
-            <SideLink
-              key={room.id}
-              href={browseHref(state, { ...PLACE_CLEAR, room: room.id })}
-              active={state.room === room.id}
-              count={roomCounts.get(room.id) ?? 0}
-            >
-              {room.name}
-            </SideLink>
-          ))}
-        </SideSection>
-      ) : null}
-
       <SideSection title="Category">
         {categories.length === 0 ? <p className="px-2.5 text-sm text-soft">No categories here.</p> : null}
         {categories.map((category) => (
@@ -152,110 +117,17 @@ export function Facets({
   );
 }
 
-export function FilterBar({
-  items,
-  state,
-  rooms,
-}: {
-  items: ItemRow[];
-  state: BrowseState;
-  rooms: RoomSummary[];
-}) {
-  const counts = facetCounts(items, state);
-  const roomCounts = countRooms(items, state);
-  const reset = browseHref(state);
-  const roomName = rooms.find((room) => room.id === state.room)?.name;
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Dropdown label={roomName ?? "Room"} active={Boolean(state.room)} resetKey={`room-${reset}`}>
-        <MenuLink href={browseHref(state, PLACE_CLEAR)} active={!state.room}>
-          All rooms
-        </MenuLink>
-        {rooms.map((room) => (
-          <MenuLink key={room.id} href={browseHref(state, { ...PLACE_CLEAR, room: room.id })} active={state.room === room.id}>
-            {room.name}
-            <span className="font-mono text-[11px] text-soft">{roomCounts.get(room.id) ?? 0}</span>
-          </MenuLink>
-        ))}
-      </Dropdown>
-      <Dropdown label={state.category ?? "Category"} active={Boolean(state.category)} resetKey={`cat-${reset}`}>
-        <MenuLink href={browseHref(state, { category: null })} active={!state.category}>
-          All categories
-        </MenuLink>
-        {CATEGORIES.filter((c) => (counts.categories.get(c) ?? 0) > 0).map((category) => (
-          <MenuLink key={category} href={browseHref(state, { category })} active={state.category === category}>
-            {category}
-            <span className="font-mono text-[11px] text-soft">{counts.categories.get(category)}</span>
-          </MenuLink>
-        ))}
-      </Dropdown>
-      <Dropdown
-        label={
-          state.color ? (
-            <span className="flex items-center gap-1.5">
-              <ColorDot name={state.color} className="size-3" />
-              {state.color}
-            </span>
-          ) : (
-            "Color"
-          )
-        }
-        active={Boolean(state.color)}
-        resetKey={`color-${reset}`}
-      >
-        <MenuLink href={browseHref(state, { color: null })} active={!state.color}>
-          Any color
-        </MenuLink>
-        {COLORS.filter((c) => (counts.colors.get(c.name) ?? 0) > 0).map((color) => (
-          <MenuLink key={color.name} href={browseHref(state, { color: color.name })} active={state.color === color.name}>
-            <span className="flex items-center gap-2">
-              <ColorDot name={color.name} className="size-3.5" />
-              {color.name}
-            </span>
-            <span className="font-mono text-[11px] text-soft">{counts.colors.get(color.name)}</span>
-          </MenuLink>
-        ))}
-      </Dropdown>
-      <Dropdown label="More" active={Boolean(state.discard || state.tag)} resetKey={`more-${reset}`}>
-        <p className="px-3 pb-1 pt-2 font-mono text-[11px] uppercase tracking-wide text-soft">Would give away</p>
-        {DISCARDS.map((discard) => (
-          <MenuLink
-            key={discard}
-            href={browseHref(state, { discard: state.discard === discard ? null : discard })}
-            active={state.discard === discard}
-          >
-            {discard}
-            <span className="font-mono text-[11px] text-soft">{counts.discards.get(discard) ?? 0}</span>
-          </MenuLink>
-        ))}
-        {counts.tags.length > 0 ? (
-          <p className="px-3 pb-1 pt-3 font-mono text-[11px] uppercase tracking-wide text-soft">Tags</p>
-        ) : null}
-        {counts.tags.map(([tag, count]) => (
-          <MenuLink key={tag} href={browseHref(state, { tag: state.tag === tag ? null : tag })} active={state.tag === tag}>
-            #{tag}
-            <span className="font-mono text-[11px] text-soft">{count}</span>
-          </MenuLink>
-        ))}
-      </Dropdown>
-    </div>
-  );
-}
-
-export function GroupPicker({ state, allowNone }: { state: BrowseState; allowNone?: boolean }) {
-  const current = state.group ?? (allowNone ? null : "room");
+export function GroupPicker({ state }: { state: BrowseState }) {
+  const current = state.group;
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <span className="text-sm text-soft">Group by</span>
-      {allowNone ? (
-        <Link
-          href={browseHref(state, { group: null })}
-          className={`rounded-full px-3 py-1 text-sm ${current === null ? "bg-ink text-paper" : "border border-line hover:border-accent"}`}
-        >
-          none
-        </Link>
-      ) : null}
+      <Link
+        href={browseHref(state, { group: null })}
+        className={`rounded-full px-3 py-1 text-sm ${current === null ? "bg-ink text-paper" : "border border-line hover:border-accent"}`}
+      >
+        none
+      </Link>
       {GROUPS.map((group) => (
         <Link
           key={group.slug}
