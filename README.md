@@ -73,6 +73,7 @@ Photos and the database live in `data/`, which is not committed, so pictures of 
 
 - [DEMO.md](DEMO.md) is the live demo script, with what happens underneath each step and measured timings.
 - [PLAN.md](PLAN.md) is the build plan: why each tool was picked, the data model, the memory budget and the risks.
+- [video/](video/README.md) is the demo video, written in code with Remotion. It animates real output from the app and its models.
 
 ## License
 

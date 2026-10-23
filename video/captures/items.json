@@ -1,0 +1,134 @@
+[
+  {
+    "id": 5,
+    "name": "tv remote",
+    "category": "electronics",
+    "color": "white",
+    "grid_x": 6,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": "coffee table",
+    "furniture": null,
+    "tags": [
+      "remote",
+      "tv",
+      "control",
+      "home",
+      "entertainment"
+    ]
+  },
+  {
+    "id": 6,
+    "name": "heart pillow",
+    "category": "clothing",
+    "color": "gray and white",
+    "grid_x": 7,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": "hanging rod",
+    "furniture": "closet",
+    "tags": []
+  },
+  {
+    "id": 7,
+    "name": "potted plant",
+    "category": "decor",
+    "color": "green",
+    "grid_x": 3,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 8,
+    "name": "small plant",
+    "category": "decor",
+    "color": "green",
+    "grid_x": 4,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 9,
+    "name": "bookshelf books",
+    "category": "books",
+    "color": "multicolored",
+    "grid_x": 12,
+    "grid_y": 7,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 10,
+    "name": "woven basket",
+    "category": "decor",
+    "color": "brown",
+    "grid_x": 8,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": "floor",
+    "furniture": "closet",
+    "tags": []
+  },
+  {
+    "id": 11,
+    "name": "wall lamp",
+    "category": "decor",
+    "color": "beige",
+    "grid_x": 5,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 12,
+    "name": "bottle on dresser",
+    "category": "decor",
+    "color": "white and blue",
+    "grid_x": 1,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 13,
+    "name": "gray plastic jug",
+    "category": "kitchen",
+    "color": "gray",
+    "grid_x": 2,
+    "grid_y": 2,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": []
+  },
+  {
+    "id": 14,
+    "name": "white remote control",
+    "category": "electronics",
+    "color": "white with blue buttons",
+    "grid_x": null,
+    "grid_y": null,
+    "room": "bedroom",
+    "spot": null,
+    "furniture": null,
+    "tags": [
+      "remote",
+      "tv",
+      "control",
+      "home",
+      "entertainment"
+    ]
+  }
+]
