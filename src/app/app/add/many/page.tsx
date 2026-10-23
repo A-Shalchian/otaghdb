@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { PhoneHandoff, PhoneHandoffButton } from "@/features/phone/phone-handoff";
 import { AddManyLoader } from "@/features/items/add-many-loader";
 
 export default function AddManyPage({ searchParams }: PageProps<"/app/add/many">) {
@@ -12,9 +13,14 @@ export default function AddManyPage({ searchParams }: PageProps<"/app/add/many">
             One photo of a drawer, shelf or desk. Every thing in it gets cut out and named.
           </p>
         </div>
-        <Link href="/app/add" className="text-sm underline underline-offset-4">
-          Add one thing instead
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/app/add" className="text-sm underline underline-offset-4">
+            Add one thing instead
+          </Link>
+          <Suspense fallback={<PhoneHandoffButton />}>
+            <PhoneHandoff path="/app/add/many" task="photograph a drawer" />
+          </Suspense>
+        </div>
       </div>
       <Suspense fallback={<div className="mt-8 h-96 rounded-2xl border border-line bg-card" />}>
         <AddManyLoader searchParams={searchParams} />
