@@ -4,7 +4,7 @@ import { staticFile } from "remotion";
 // app, captured on 2026-10-22 (raw responses in video/captures). Places are picked
 // by hand, the same way a person picks them in the add form.
 
-export const item = (id: number, file: "cutout.png" | "sprite.png" | "original.jpg") => staticFile(`items/${id}/${file}`);
+export const item = (id: number, file: "cutout.png" | "original.jpg") => staticFile(`items/${id}/${file}`);
 
 export const single = {
   photo: item(14, "original.jpg"),
@@ -70,26 +70,14 @@ export const check = {
   ],
 };
 
-export const sprites = [
-  { id: 12, x: 1, y: 2 },
-  { id: 13, x: 2, y: 2 },
-  { id: 7, x: 3, y: 2 },
-  { id: 8, x: 4, y: 2 },
-  { id: 11, x: 5, y: 2 },
-  { id: 5, x: 6, y: 2 },
-  { id: 6, x: 7, y: 2 },
-  { id: 10, x: 8, y: 2 },
-  { id: 9, x: 12, y: 7 },
-];
-
 // Wikimedia Commons photos (credits in video/README.md), cut out by the app's vision service.
 export const lost = [
-  { word: "keys", at: 124 },
-  { word: "charger", at: 135 },
-  { word: "headphones", at: 146 },
-  { word: "wallet", at: 158 },
-  { word: "sunglasses", at: 171 },
-  { word: "passport", at: 186 },
+  { word: "keys", at: 138 },
+  { word: "charger", at: 149 },
+  { word: "headphones", at: 160 },
+  { word: "wallet", at: 172 },
+  { word: "sunglasses", at: 185 },
+  { word: "passport", at: 200 },
 ].map((w) => ({ ...w, src: staticFile(`hook/${w.word}.png`) }));
 
 export const models = [

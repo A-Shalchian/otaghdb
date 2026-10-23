@@ -5,7 +5,7 @@ import narration from "./narration.json";
 import { FPS } from "./theme";
 import durations from "./voice-durations.json";
 
-type Sound = "pop" | "tick" | "type" | "tap" | "shutter" | "whoosh" | "swish" | "ding" | "riser" | "blip";
+type Sound = "pop" | "tick" | "type" | "tap" | "shutter" | "whoosh" | "swish" | "ding" | "riser";
 type Cue = [at: number, sound: Sound, volume: number];
 
 const range = (count: number, start: number, step: number) => Array.from({ length: count }, (_, i) => start + i * step);
@@ -44,7 +44,6 @@ const CUES: Record<string, Cue[]> = {
     ...range(4, 196, 16).map((at): Cue => [at, "tick", 0.35]),
   ],
   look: [...typing(16, 24), [84, "pop", 0.24], [120, "pop", 0.2], [174, "riser", 0.22], [240, "ding", 0.28]],
-  pixel: [...range(9, 40, 8).map((at): Cue => [at, "blip", 0.16]), [170, "tap", 0.3], [206, "blip", 0.24]],
   local: [...range(4, 70, 12).map((at): Cue => [at, "pop", 0.18])],
   outro: [[4, "ding", 0.28]],
 };
@@ -57,6 +56,8 @@ const voices = narration.map((line) => ({
 
 const MUSIC = 0.16;
 const DUCKED = 0.06;
+const HUSHED = 0.02;
+const question = voices.find((v) => v.id === "hook-2")!;
 
 function musicVolume(frame: number, total: number) {
   const duck = Math.max(
@@ -64,7 +65,12 @@ function musicVolume(frame: number, total: number) {
     ...voices.map((v) => interpolate(frame, [v.from - 8, v.from, v.from + v.frames, v.from + v.frames + 12], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })),
   );
   const edges = interpolate(frame, [0, 45, total - 75, total], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  return (MUSIC - (MUSIC - DUCKED) * duck) * edges;
+  const volume = (MUSIC - (MUSIC - DUCKED) * duck) * edges;
+  // A chord held under the open-ended "my...?" makes it sound like "mine",
+  // so the music nearly stops until the words start rolling.
+  const roll = SCENE_STARTS.hook + lost[0].at;
+  const hush = interpolate(frame, [question.from - 6, question.from, roll, roll + 10], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return volume * (1 - hush) + Math.min(volume, HUSHED) * hush;
 }
 
 export function Soundtrack() {

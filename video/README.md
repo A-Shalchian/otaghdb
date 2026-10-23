@@ -1,6 +1,6 @@
 # OtaghDB demo video
 
-The 85-second narrated demo video, written in code with [Remotion](https://www.remotion.dev). After the opening, every name, box, cutout, answer and score on screen is real output from the running app and its local models. The video animates that output; it does not mock it.
+The 77-second narrated demo video, written in code with [Remotion](https://www.remotion.dev). After the opening, every name, box, cutout, answer and score on screen is real output from the running app and its local models. The video animates that output; it does not mock it.
 
 ## Render
 
@@ -37,7 +37,7 @@ npm run sounds
 
 - `captures/` holds the raw responses from the app: the drawer analysis (`/api/scenes/analyze`), two chat answers (`/api/chat`), the photo match (`/api/check`) and the items table.
 - `public/drawer/` and `public/data/` hold the photos and cutouts from those same responses.
-- `scripts/collect-assets.mjs` copies the cutouts and sprites of the items in the video from `data/images` and exports their rows to `captures/items.json`.
+- `scripts/collect-assets.mjs` copies the photos and cutouts of the items in the video from `data/images` and exports their rows to `captures/items.json`.
 - `src/data.ts` holds the values the scenes animate.
 
 The room and item photos are from the COCO dataset (CC BY 4.0).

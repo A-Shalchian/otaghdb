@@ -11,7 +11,6 @@ import { Logo } from "./scenes/Logo";
 import { Look } from "./scenes/Look";
 import { Outro } from "./scenes/Outro";
 import { Packing } from "./scenes/Packing";
-import { PixelRoom } from "./scenes/PixelRoom";
 import { SnapOne } from "./scenes/SnapOne";
 
 const TRANSITION = 16;
@@ -28,14 +27,13 @@ function transition(into: Into) {
 }
 
 const SCENES: { id: string; frames: number; Scene: () => React.JSX.Element; into: Into }[] = [
-  { id: "hook", frames: 240, Scene: Hook, into: "fade" },
+  { id: "hook", frames: 252, Scene: Hook, into: "fade" },
   { id: "logo", frames: 120, Scene: Logo, into: "fade" },
   { id: "snap", frames: 420, Scene: SnapOne, into: "slide-right" },
   { id: "drawer", frames: 330, Scene: Drawer, into: "slide-up" },
   { id: "ask", frames: 300, Scene: Ask, into: "wipe-right" },
   { id: "packing", frames: 300, Scene: Packing, into: "slide-right" },
   { id: "look", frames: 300, Scene: Look, into: "slide-up" },
-  { id: "pixel", frames: 250, Scene: PixelRoom, into: "wipe-left" },
   { id: "local", frames: 270, Scene: Local, into: "fade" },
   { id: "outro", frames: 150, Scene: Outro, into: "fade" },
 ];

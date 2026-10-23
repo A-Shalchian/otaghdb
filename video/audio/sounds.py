@@ -85,14 +85,6 @@ def riser() -> np.ndarray:
     return x * np.clip(n / 1.6, 0, 1) ** 2 * np.exp(-np.clip(n - 1.85, 0, None) / 0.03)
 
 
-def blip() -> np.ndarray:
-    parts = []
-    for freq in (660, 990):
-        n = t(0.05)
-        parts.append(signal.square(2 * np.pi * freq * n) * np.exp(-n / 0.03))
-    return np.concatenate(parts) * 0.5
-
-
 def note(freq: float, seconds: float, attack: float, release: float, detune_cents: float) -> np.ndarray:
     n = t(seconds)
     ratio = 2 ** (detune_cents / 1200)
@@ -161,7 +153,6 @@ def main() -> None:
     save("swish", whoosh(0.3, 900, 4000), 0.5)
     save("ding", ding(), 0.7)
     save("riser", riser(), 0.5)
-    save("blip", blip(), 0.5)
     with tempfile.TemporaryDirectory() as tmp:
         wav = Path(tmp) / "music.wav"
         sf.write(wav, music().astype(np.float32), RATE)
