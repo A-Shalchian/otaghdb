@@ -39,11 +39,56 @@ export const models = [
   { name: "SigLIP 2", job: "Finds things by how they look", license: "Apache 2.0" },
 ];
 
-export const install = [
-  "git clone https://github.com/A-Shalchian/otaghdb",
-  "cd otaghdb && pnpm install",
-  "ollama pull qwen3.5:9b",
-  "pnpm dev",
+export const repoUrl = "https://github.com/A-Shalchian/otaghdb";
+
+export type RunSteps = { system: string; prompt: string; commands: string[] };
+
+export const runSteps: RunSteps[] = [
+  {
+    system: "Windows",
+    prompt: ">",
+    commands: [
+      `git clone ${repoUrl}`,
+      "cd otaghdb",
+      "ollama pull qwen3.5:9b",
+      "py -3.10 -m venv services/vision/.venv",
+      "services/vision/.venv/Scripts/pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu",
+      "services/vision/.venv/Scripts/pip install -r services/vision/requirements.txt",
+      "pnpm install",
+      ".\\start.ps1",
+    ],
+  },
+  {
+    system: "macOS",
+    prompt: "$",
+    commands: [
+      "brew install ollama python@3.12 node pnpm",
+      "brew services start ollama",
+      `git clone ${repoUrl}`,
+      "cd otaghdb",
+      "ollama pull qwen3.5:9b",
+      "python3.12 -m venv services/vision/.venv",
+      "services/vision/.venv/bin/pip install torch==2.14.1 torchvision==0.29.1",
+      "services/vision/.venv/bin/pip install -r services/vision/requirements.txt",
+      "pnpm install",
+      "./start.sh",
+    ],
+  },
+  {
+    system: "Linux",
+    prompt: "$",
+    commands: [
+      "curl -fsSL https://ollama.com/install.sh | sh",
+      `git clone ${repoUrl}`,
+      "cd otaghdb",
+      "ollama pull qwen3.5:9b",
+      "python3 -m venv services/vision/.venv",
+      "services/vision/.venv/bin/pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu",
+      "services/vision/.venv/bin/pip install -r services/vision/requirements.txt",
+      "pnpm install",
+      "./start.sh",
+    ],
+  },
 ];
 
 export type SampleItem = {

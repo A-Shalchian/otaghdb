@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { brand, install, localPitch, models, steps } from "./content";
+import { brand, localPitch, models, repoUrl, steps } from "./content";
+import { RunSteps } from "./run-steps";
 import { chatScrollbars } from "./scrollbars";
 import { AskLoop } from "./ask-loop";
 import {
@@ -117,15 +118,18 @@ export default function JustAsk() {
           <section id="install" className="mt-20 scroll-mt-8 space-y-6">
             <Asked text="how do I run it?" />
             <Replied className="lg:max-w-3xl">
-              <p className="text-xl leading-snug">Run these in a terminal, in order.</p>
-              <div className="chat-code mt-4 overflow-x-auto rounded-[14px] bg-[#18212c] px-5 py-4 font-mono text-sm leading-7 text-[#e8ecf1]">
-                {install.map((command) => (
-                  <code key={command} className="block whitespace-pre">
-                    <span className="select-none text-[#8a96a6]">$ </span>
-                    {command}
-                  </code>
-                ))}
-              </div>
+              <p className="text-xl leading-snug">Pick your system and run these in a terminal, in order.</p>
+              <RunSteps />
+              <p className="mt-4 leading-relaxed text-[#36414f]">
+                You need about 8 GB of GPU memory, or an Apple Silicon Mac with 16 GB. The first start downloads
+                about 2 GB of vision models, and after that it works offline.{" "}
+                <a
+                  href={`${repoUrl}#run-it`}
+                  className={`font-semibold text-[#3d4f8f] underline underline-offset-4 ${chatFocus}`}
+                >
+                  Full steps in the README
+                </a>
+              </p>
             </Replied>
           </section>
 
